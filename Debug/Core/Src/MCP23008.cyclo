@@ -1,0 +1,5 @@
+../Core/Src/MCP23008.c:9:19:MCP23008_Setup	3
+../Core/Src/MCP23008.c:33:19:MCP23008_ReadPin	3
+../Core/Src/MCP23008.c:48:19:MCP23008_ReadAllPin	2
+../Core/Src/MCP23008.c:53:19:MCP23008_WritePin	4
+../Core/Src/MCP23008.c:62:19:MCP23008_WritePort	2

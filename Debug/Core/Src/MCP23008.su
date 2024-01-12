@@ -1,0 +1,5 @@
+../Core/Src/MCP23008.c:9:19:MCP23008_Setup	40	static
+../Core/Src/MCP23008.c:33:19:MCP23008_ReadPin	48	static
+../Core/Src/MCP23008.c:48:19:MCP23008_ReadAllPin	32	static
+../Core/Src/MCP23008.c:53:19:MCP23008_WritePin	48	static
+../Core/Src/MCP23008.c:62:19:MCP23008_WritePort	40	static

@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2023 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2023 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "MCP3008.h"
+#include "MCP23008.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -31,7 +32,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-// MCP23008 I2C address, A0-A2 are set to GND (0b0100)
+// MCP23008 I2C address, A0-A2 are set to GND (0b0100 + A2 + A1 + A0)
 #define MCP23008_I2C_ADDRESS 0b0100000 << 1
 
 /* USER CODE END PD */
@@ -42,14 +43,31 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+CAN_HandleTypeDef hcan1;
+
 DAC_HandleTypeDef hdac;
 
 I2C_HandleTypeDef hi2c1;
 
 SPI_HandleTypeDef hspi3;
 
+TIM_HandleTypeDef htim6;
+
 /* USER CODE BEGIN PV */
-MCP3008_InitTypeDef ADC_MCP3008_1 = {0};
+
+MCP3008_InitTypeDef ADC_1 = {0};
+MCP3008_InitTypeDef ADC_2 = {0};
+MCP3008_InitTypeDef ADC_3 = {0};
+
+MCP23008_InitTypeDef GPIO_0 = {0};
+MCP23008_InitTypeDef GPIO_1 = {0};
+MCP23008_InitTypeDef GPIO_2 = {0};
+MCP23008_InitTypeDef GPIO_3 = {0};
+MCP23008_InitTypeDef GPIO_4 = {0};
+MCP23008_InitTypeDef GPIO_5 = {0};
+MCP23008_InitTypeDef GPIO_6 = {0};
+MCP23008_InitTypeDef GPIO_7 = {0};
+
 
 /* USER CODE END PV */
 
@@ -59,8 +77,11 @@ static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_DAC_Init(void);
 static void MX_SPI3_Init(void);
+static void MX_CAN1_Init(void);
+static void MX_TIM6_Init(void);
 /* USER CODE BEGIN PFP */
 
+void TO54_IOEXPANDERS_Init();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -99,41 +120,50 @@ int main(void)
   MX_I2C1_Init();
   MX_DAC_Init();
   MX_SPI3_Init();
+  MX_CAN1_Init();
+  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
+	TO54_IOEXPANDERS_Init();
+	uint8_t GPIO_status = 0;
+	float adc_result[8] = {0.0};
 
-  uint8_t GPIO_status = 0;
-  float adc_result=0.0;
+	HAL_TIM_Base_Start(&htim6);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  HAL_StatusTypeDef returnval = HAL_OK;
-  while (1)
-  {
-	  // let's blink the LED linked to the first output of the MCP23008
-	  //first, check status of the first output
-	  returnval = MCP3008_Polling_Benchmark(&ADC_MCP3008_1, 0, &adc_result, 1000);
-//	  returnval = HAL_I2C_Mem_Read(&hi2c1, MCP23008_I2C_ADDRESS, 0x09, 1, &GPIO_status, 1, 100);
-    if (returnval != HAL_OK) {
-      Error_Handler();
-    }
-//	  // toggle all of the outputs
-//	  GPIO_status = ~GPIO_status;
-//	  returnval = HAL_I2C_Mem_Write(&hi2c1, MCP23008_I2C_ADDRESS, 0x09, 1, &GPIO_status, 1, 100);
-//    if (returnval != HAL_OK) {
-//      Error_Handler();
-//    }
-//	  HAL_Delay(500);
-//
-//	  returnval = MCP3008_ReadChannel(&ADC_MCP3008_1, 1, &adc_result, 1000);
-//	  if (returnval != HAL_OK) {
-//	        Error_Handler();
-//	  }
+	HAL_StatusTypeDef returnval = HAL_OK;
+	while (1)
+	{
+		// let's blink the LED linked to the first output of the MCP23008
+		//first, check status of the first output
+		//returnval = MCP3008_Polling_Benchmark(&ADC_MCP3008_1, 0, &adc_result, 1000);
+		//returnval = MCP3008_ReadAllChannels(&ADC_MCP3008_1, adc_result, 100);
+		//MCP23008_WritePort(&GPIO_0, 0xFF, 100);
+		HAL_Delay(500);
+		//MCP23008_WritePort(&GPIO_0, 0x00, 100);
+		HAL_Delay(500);
+		//	  returnval = HAL_I2C_Mem_Read(&hi2c1, MCP23008_I2C_ADDRESS, 0x09, 1, &GPIO_status, 1, 100);
+		if (returnval != HAL_OK) {
+			Error_Handler();
+		}
+		//	  // toggle all of the outputs
+		//	  GPIO_status = ~GPIO_status;
+		//	  returnval = HAL_I2C_Mem_Write(&hi2c1, MCP23008_I2C_ADDRESS, 0x09, 1, &GPIO_status, 1, 100);
+		//    if (returnval != HAL_OK) {
+		//      Error_Handler();
+		//    }
+		//	  HAL_Delay(500);
+		//
+		//	  returnval = MCP3008_ReadChannel(&ADC_MCP3008_1, 1, &adc_result, 1000);
+		//	  if (returnval != HAL_OK) {
+		//	        Error_Handler();
+		//	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 
-  }
+	}
   /* USER CODE END 3 */
 }
 
@@ -180,6 +210,43 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief CAN1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_CAN1_Init(void)
+{
+
+  /* USER CODE BEGIN CAN1_Init 0 */
+
+  /* USER CODE END CAN1_Init 0 */
+
+  /* USER CODE BEGIN CAN1_Init 1 */
+
+  /* USER CODE END CAN1_Init 1 */
+  hcan1.Instance = CAN1;
+  hcan1.Init.Prescaler = 16;
+  hcan1.Init.Mode = CAN_MODE_NORMAL;
+  hcan1.Init.SyncJumpWidth = CAN_SJW_1TQ;
+  hcan1.Init.TimeSeg1 = CAN_BS1_1TQ;
+  hcan1.Init.TimeSeg2 = CAN_BS2_1TQ;
+  hcan1.Init.TimeTriggeredMode = DISABLE;
+  hcan1.Init.AutoBusOff = DISABLE;
+  hcan1.Init.AutoWakeUp = DISABLE;
+  hcan1.Init.AutoRetransmission = DISABLE;
+  hcan1.Init.ReceiveFifoLocked = DISABLE;
+  hcan1.Init.TransmitFifoPriority = DISABLE;
+  if (HAL_CAN_Init(&hcan1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN CAN1_Init 2 */
+
+  /* USER CODE END CAN1_Init 2 */
+
 }
 
 /**
@@ -258,24 +325,6 @@ static void MX_I2C1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN I2C1_Init 2 */
-  uint8_t data[2] = {0};
-  data[0] = 0x00; // IODIR register
-  data[1] = 0x00; // all outputs
-  HAL_StatusTypeDef retval = HAL_OK;
-  retval = HAL_I2C_Master_Transmit(&hi2c1, MCP23008_I2C_ADDRESS, data, 2, 1000);
-  if (retval != HAL_OK) {
-    Error_Handler();
-  }
-
-  data[0] = 0x09; // GPIO register
-  data[1] = 0x00; // all outputs low
-  retval = HAL_I2C_Master_Transmit(&hi2c1, MCP23008_I2C_ADDRESS, data, 2, 1000);
-  if (retval != HAL_OK) {
-    Error_Handler();
-  }
-
-
-
   /* USER CODE END I2C1_Init 2 */
 
 }
@@ -313,11 +362,49 @@ static void MX_SPI3_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN SPI3_Init 2 */
-  ADC_MCP3008_1.phspi = &hspi3;
-  ADC_MCP3008_1.pgpio_cs = SPI_ADC1_CS_GPIO_Port;
-  ADC_MCP3008_1.pin_nbr = SPI_ADC1_CS_Pin;
-  ADC_MCP3008_1.vref = 4.85;
+	ADC_1.phspi = &hspi3;
+	ADC_1.pgpio_cs = SPI_ADC1_CS_GPIO_Port;
+	ADC_1.pin_nbr = SPI_ADC1_CS_Pin;
+	ADC_1.vref = 4.85;
   /* USER CODE END SPI3_Init 2 */
+
+}
+
+/**
+  * @brief TIM6 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM6_Init(void)
+{
+
+  /* USER CODE BEGIN TIM6_Init 0 */
+
+  /* USER CODE END TIM6_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM6_Init 1 */
+
+  /* USER CODE END TIM6_Init 1 */
+  htim6.Instance = TIM6;
+  htim6.Init.Prescaler = 31;
+  htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim6.Init.Period = 524;
+  htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM6_Init 2 */
+  __HAL_TIM_ENABLE_IT(&htim6, TIM_IT_UPDATE);
+  /* USER CODE END TIM6_Init 2 */
 
 }
 
@@ -341,16 +428,13 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LIN_CS_GPIO_Port, LIN_CS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LIN_CS_GPIO_Port, LIN_CS_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(SPI_ADC2_CS_GPIO_Port, SPI_ADC2_CS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, SPI_ADC2_CS_Pin|SPI_ADC1_CS_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(SPI_ADC1_CS_GPIO_Port, SPI_ADC1_CS_Pin, GPIO_PIN_SET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(SPI_ADC3_CS_GPIO_Port, SPI_ADC3_CS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(SPI_ADC3_CS_GPIO_Port, SPI_ADC3_CS_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin : LIN_CS_Pin */
   GPIO_InitStruct.Pin = LIN_CS_Pin;
@@ -373,14 +457,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(SPI_ADC1_CS_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PD0 PD1 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF9_CAN1;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
   /*Configure GPIO pin : SPI_ADC3_CS_Pin */
   GPIO_InitStruct.Pin = SPI_ADC3_CS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -393,7 +469,47 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void TO54_IOEXPANDERS_Init(){
 
+
+	/* adresses physiques */
+	GPIO_0.address = ( 0b0100<<3 | 0b000) << 1;
+	GPIO_1.address = ( 0b0100<<3 | 0b001) << 1;
+	GPIO_2.address = ( 0b0100<<3 | 0b100) << 1;
+	GPIO_3.address = ( 0b0100<<3 | 0b011) << 1;
+	GPIO_4.address = ( 0b0100<<3 | 0b010) << 1;
+	GPIO_5.address = ( 0b0100<<3 | 0b110) << 1;
+	GPIO_6.address = ( 0b0100<<3 | 0b101) << 1;
+	GPIO_7.address = ( 0b0100<<3 | 0b111) << 1;
+
+	GPIO_0.hi2c = &hi2c1;
+	GPIO_1.hi2c = &hi2c1;
+	GPIO_2.hi2c = &hi2c1;
+	GPIO_3.hi2c = &hi2c1;
+	GPIO_4.hi2c = &hi2c1;
+	GPIO_5.hi2c = &hi2c1;
+	GPIO_6.hi2c = &hi2c1;
+	GPIO_7.hi2c = &hi2c1;
+
+	if(MCP23008_Setup(&GPIO_0, 0x00, 100) != HAL_OK) Error_Handler(); //Sorties
+	if(MCP23008_Setup(&GPIO_1, 0x00, 100) != HAL_OK) Error_Handler(); //Sorties
+	if(MCP23008_Setup(&GPIO_2, 0x00, 100) != HAL_OK) Error_Handler(); //Sorties
+	if(MCP23008_Setup(&GPIO_3, 0x00, 100) != HAL_OK) Error_Handler(); //Sorties
+	if(MCP23008_Setup(&GPIO_4, 0x00, 100) != HAL_OK) Error_Handler(); //Sorties
+	if(MCP23008_Setup(&GPIO_5, 0x00, 100) != HAL_OK) Error_Handler(); //Sorties
+	if(MCP23008_Setup(&GPIO_6, 0x00, 100) != HAL_OK) Error_Handler(); //Sorties
+	if(MCP23008_Setup(&GPIO_7, 0xFF, 100) != HAL_OK) Error_Handler(); //Entrées
+
+
+
+}
+uint8_t TimerTestData = 0xff;
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+	/* This timer is generating an interrupt every 5kHz, used for analog measures, and electric motor monitoring */
+	if(MCP23008_WritePort(&GPIO_1, TimerTestData, 100)!= HAL_OK) Error_Handler();
+
+	TimerTestData = ~TimerTestData;
+}
 /* USER CODE END 4 */
 
 /**
@@ -403,11 +519,11 @@ static void MX_GPIO_Init(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
-  {
-  }
+	/* User can add his own implementation to report the HAL error return state */
+	__disable_irq();
+	while (1)
+	{
+	}
   /* USER CODE END Error_Handler_Debug */
 }
 
@@ -422,7 +538,7 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
+	/* User can add his own implementation to report the file name and line number,
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 }

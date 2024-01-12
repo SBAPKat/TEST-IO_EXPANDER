@@ -26,6 +26,7 @@ typedef struct{
 	uint16_t pin_nbr;
 	ADC_StatusTypeDef status;
 	float vref;
+	float result[8];
 }MCP3008_InitTypeDef;
 
 
