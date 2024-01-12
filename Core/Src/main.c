@@ -68,6 +68,7 @@ MCP23008_InitTypeDef GPIO_5 = {0};
 MCP23008_InitTypeDef GPIO_6 = {0};
 MCP23008_InitTypeDef GPIO_7 = {0};
 
+uint8_t INT_FLAG =0;
 
 /* USER CODE END PV */
 
@@ -124,41 +125,20 @@ int main(void)
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
 	TO54_IOEXPANDERS_Init();
-	uint8_t GPIO_status = 0;
-	float adc_result[8] = {0.0};
+	uint8_t TimerTestData = 0xff;
 
 	HAL_TIM_Base_Start(&htim6);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	HAL_StatusTypeDef returnval = HAL_OK;
 	while (1)
 	{
-		// let's blink the LED linked to the first output of the MCP23008
-		//first, check status of the first output
-		//returnval = MCP3008_Polling_Benchmark(&ADC_MCP3008_1, 0, &adc_result, 1000);
-		//returnval = MCP3008_ReadAllChannels(&ADC_MCP3008_1, adc_result, 100);
-		//MCP23008_WritePort(&GPIO_0, 0xFF, 100);
-		HAL_Delay(500);
-		//MCP23008_WritePort(&GPIO_0, 0x00, 100);
-		HAL_Delay(500);
-		//	  returnval = HAL_I2C_Mem_Read(&hi2c1, MCP23008_I2C_ADDRESS, 0x09, 1, &GPIO_status, 1, 100);
-		if (returnval != HAL_OK) {
-			Error_Handler();
+		if(INT_FLAG != 0){
+			if(MCP23008_WritePort(&GPIO_1, TimerTestData, 100)!= HAL_OK) Error_Handler();
+			TimerTestData = ~TimerTestData;
+			INT_FLAG = 0;
 		}
-		//	  // toggle all of the outputs
-		//	  GPIO_status = ~GPIO_status;
-		//	  returnval = HAL_I2C_Mem_Write(&hi2c1, MCP23008_I2C_ADDRESS, 0x09, 1, &GPIO_status, 1, 100);
-		//    if (returnval != HAL_OK) {
-		//      Error_Handler();
-		//    }
-		//	  HAL_Delay(500);
-		//
-		//	  returnval = MCP3008_ReadChannel(&ADC_MCP3008_1, 1, &adc_result, 1000);
-		//	  if (returnval != HAL_OK) {
-		//	        Error_Handler();
-		//	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -312,7 +292,7 @@ static void MX_I2C1_Init(void)
 
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
-  hi2c1.Init.ClockSpeed = 100000;
+  hi2c1.Init.ClockSpeed = 400000;
   hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
@@ -503,12 +483,12 @@ void TO54_IOEXPANDERS_Init(){
 
 
 }
-uint8_t TimerTestData = 0xff;
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	/* This timer is generating an interrupt every 5kHz, used for analog measures, and electric motor monitoring */
-	if(MCP23008_WritePort(&GPIO_1, TimerTestData, 100)!= HAL_OK) Error_Handler();
-
-	TimerTestData = ~TimerTestData;
+	if(INT_FLAG != 1) INT_FLAG = 1;
+	else{
+	//	Error_Handler();
+	}
 }
 /* USER CODE END 4 */
 
