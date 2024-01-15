@@ -31,8 +31,8 @@ typedef struct{
 }MCP3008_InitTypeDef;
 
 
-HAL_StatusTypeDef MCP3008_ReadChannel(MCP3008_InitTypeDef* MCP3008_dev, uint8_t channel_id, float* result, uint32_t timeout);
-HAL_StatusTypeDef MCP3008_ReadAllChannels(MCP3008_InitTypeDef* MCP3008_dev, float* result, uint32_t timeout);
+HAL_StatusTypeDef MCP3008_ReadChannel(MCP3008_InitTypeDef* MCP3008_dev, uint8_t channel_id, uint32_t timeout);
+HAL_StatusTypeDef MCP3008_ReadAllChannels(MCP3008_InitTypeDef* MCP3008_dev, uint32_t timeout);
 HAL_StatusTypeDef MCP3008_Polling_Benchmark(MCP3008_InitTypeDef* MCP3008_dev, uint8_t channel_id, float* ksps, uint32_t timeout);
 
 

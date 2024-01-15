@@ -498,7 +498,22 @@ void TO54_UPDATE_ANALOG(){
 	MCP3008_InitTypeDef* adc;
 	for(uint8_t adc_nbr = 0 ; adc_nbr < 3; adc_nbr++ ){
 		adc = ADC_LIST[adc_nbr];
-	if(adc->update_request == 0xFF) MCP3008_ReadAllChannels(adc, result, 100);
+		/* check if we need to skip the current ADC*/
+		if(adc->update_request == 0x00) continue;
+
+		//we check if we need to read the entire ADC
+		if(adc->update_request == 0xFF){
+			MCP3008_ReadAllChannels(adc, result, 100);
+			continue;
+		}
+
+		/* If we get here, we need to read specific channels */
+		for(uint8_t channel=0;channel<8;channel++){
+			if((adc->update_request>>channel) | 1) MCP3008_ReadChannel(adc, channel, result, 100);
+		}
+
+
+
 	}
 }
 /* USER CODE END 4 */
