@@ -53,7 +53,7 @@ HAL_StatusTypeDef MCP3008_ReadAllChannels(MCP3008_InitTypeDef* MCP3008_dev, floa
 	uint8_t i =0;
 	for( uint8_t channel = 0 ; channel < 8 ; channel++ ){
 		if( MCP3008_ReadChannel(MCP3008_dev, channel, result + i, timeout) != HAL_OK ) return HAL_ERROR;
-		HAL_Delay(1);
+		//HAL_Delay(1);
 		i++;
 	}
 	return HAL_OK;
