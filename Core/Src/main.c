@@ -128,6 +128,7 @@ int main(void)
 	uint8_t TimerTestData = 0xff;
 
 	HAL_TIM_Base_Start(&htim6);
+	float result[8] = {0};
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -137,6 +138,7 @@ int main(void)
 		if(INT_FLAG != 0){
 			if(MCP23008_WritePort(&GPIO_1, TimerTestData, 100)!= HAL_OK) Error_Handler();
 			TimerTestData = ~TimerTestData;
+			if(MCP3008_ReadAllChannels(&ADC_1,result,100) != HAL_OK) Error_Handler();
 			INT_FLAG = 0;
 		}
 		/* USER CODE END WHILE */
@@ -332,7 +334,7 @@ static void MX_SPI3_Init(void)
 	hspi3.Init.CLKPolarity = SPI_POLARITY_LOW;
 	hspi3.Init.CLKPhase = SPI_PHASE_1EDGE;
 	hspi3.Init.NSS = SPI_NSS_SOFT;
-	hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
+	hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
 	hspi3.Init.FirstBit = SPI_FIRSTBIT_MSB;
 	hspi3.Init.TIMode = SPI_TIMODE_DISABLE;
 	hspi3.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -345,7 +347,7 @@ static void MX_SPI3_Init(void)
 	ADC_1.phspi = &hspi3;
 	ADC_1.pgpio_cs = SPI_ADC1_CS_GPIO_Port;
 	ADC_1.pin_nbr = SPI_ADC1_CS_Pin;
-	ADC_1.vref = 4.85;
+	ADC_1.vref = 5.206;
 	/* USER CODE END SPI3_Init 2 */
 
 }
@@ -480,8 +482,6 @@ void TO54_IOEXPANDERS_Init(){
 	if(MCP23008_Setup(&GPIO_6, 0x00, 100) != HAL_OK) Error_Handler(); //Sorties
 	if(MCP23008_Setup(&GPIO_7, 0xFF, 100) != HAL_OK) Error_Handler(); //Entrées
 
-
-
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
@@ -491,6 +491,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		//	Error_Handler();
 	}
 }
+
+void TO54_UPDATE_ANALOG();
 /* USER CODE END 4 */
 
 /**
