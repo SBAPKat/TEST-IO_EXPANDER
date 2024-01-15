@@ -84,7 +84,7 @@ void init_can(void)
 */
 void Receive_frame(void)
 {
-	switch(CAN_circ_buf[CAN_buf_RD].CAN_message.StdId & 0x7F0)
+	switch(CAN_circ_buf[CAN_buf_RD].CAN_message.StdId & 0x0F0)
 	{
 	case (IO_EXPANDERS_U5):
 		Receive_frame_for_U5();
@@ -111,7 +111,10 @@ void Receive_frame_for_U5(void)
 	uint8_t donnees;
 	extern MCP23008_InitTypeDef GPIO_0;
 
-				// Check to know if it's a data or a remote frame
+	switch(CAN_circ_buf[CAN_buf_RD].CAN_message.StdId & 0x0F3)
+	{
+		case (IO_EXPANDERS_U5):
+		// Check to know if it's a data or a remote frame
 				if(CAN_circ_buf[CAN_buf_RD].CAN_message.RTR > 0) //Remote frame RTR=1
 				{
 					//Send data frame
@@ -162,7 +165,49 @@ void Receive_frame_for_U5(void)
 				}
 				CAN_buf_RD++;
 				if(CAN_buf_RD == BUF_CIRC_SIZE) CAN_buf_RD=0;
+				val_can--;;
+		break;
+		case (IO_EXPANDERS_U5_ETAT_MOT_1):
+				// Check to know if it's a data
+				if(CAN_circ_buf[CAN_buf_RD].CAN_message.RTR > 0) //Remote frame RTR=1
+				{
+					//Send data frame
+					Frame_To_Send.CAN_message.StdId = CAN_circ_buf[CAN_buf_RD].CAN_message.StdId;
+					Frame_To_Send.CAN_message.RTR = CAN_RTR_DATA;
+					Frame_To_Send.CAN_message.IDE = CAN_ID_STD;
+					Frame_To_Send.CAN_message.DLC = 2;
+					Frame_To_Send.rbuffer_data[0] = /*sens du moteur 1*/;
+					Frame_To_Send.rbuffer_data[1] = /*valeur du courant du moteur 1*/;
+
+					HAL_CAN_AddTxMessage(&hcan1, &Frame_To_Send.CAN_message, Frame_To_Send.rbuffer_data,&pTxMailbox);
+					HAL_Delay(1);
+				}
+
+				CAN_buf_RD++;
+				if(CAN_buf_RD == BUF_CIRC_SIZE) CAN_buf_RD=0;
 				val_can--;
+		break;
+		case (IO_EXPANDERS_U5_ETAT_MOT_2):
+		// Check to know if it's a data
+				if(CAN_circ_buf[CAN_buf_RD].CAN_message.RTR > 0) //Remote frame RTR=1
+				{
+					//Send data frame
+					Frame_To_Send.CAN_message.StdId = CAN_circ_buf[CAN_buf_RD].CAN_message.StdId;
+					Frame_To_Send.CAN_message.RTR = CAN_RTR_DATA;
+					Frame_To_Send.CAN_message.IDE = CAN_ID_STD;
+					Frame_To_Send.CAN_message.DLC = 2;
+					Frame_To_Send.rbuffer_data[0] = /*sens du moteur 2*/;
+					Frame_To_Send.rbuffer_data[1] = /*valeur du courantdu moteur 2*/;
+
+					HAL_CAN_AddTxMessage(&hcan1, &Frame_To_Send.CAN_message, Frame_To_Send.rbuffer_data,&pTxMailbox);
+					HAL_Delay(1);
+				}
+
+				CAN_buf_RD++;
+				if(CAN_buf_RD == BUF_CIRC_SIZE) CAN_buf_RD=0;
+				val_can--;
+		break;
+		}
 }
 
 void Receive_frame_for_U8(void)
@@ -171,8 +216,9 @@ void Receive_frame_for_U8(void)
 	uint8_t traitement;
 	uint8_t donnees;
 	extern MCP23008_InitTypeDef GPIO_1;
-
-
+	switch(CAN_circ_buf[CAN_buf_RD].CAN_message.StdId & 0x0F3)
+	{
+		case (IO_EXPANDERS_U8):
 				// Check to know if it's a data or a remote frame
 				if(CAN_circ_buf[CAN_buf_RD].CAN_message.RTR > 0) //Remote frame RTR=1
 				{
@@ -224,6 +270,48 @@ void Receive_frame_for_U8(void)
 				CAN_buf_RD++;
 				if(CAN_buf_RD == BUF_CIRC_SIZE) CAN_buf_RD=0;
 				val_can--;
+		break;
+		case (IO_EXPANDERS_U8_ETAT_MOT_1):
+				// Check to know if it's a data
+				if(CAN_circ_buf[CAN_buf_RD].CAN_message.RTR > 0) //Remote frame RTR=1
+				{
+					//Send data frame
+					Frame_To_Send.CAN_message.StdId = CAN_circ_buf[CAN_buf_RD].CAN_message.StdId;
+					Frame_To_Send.CAN_message.RTR = CAN_RTR_DATA;
+					Frame_To_Send.CAN_message.IDE = CAN_ID_STD;
+					Frame_To_Send.CAN_message.DLC = 2;
+					Frame_To_Send.rbuffer_data[0] = /*sens du moteur 1*/;
+					Frame_To_Send.rbuffer_data[1] = /*valeur du courant du moteur 1*/;
+
+					HAL_CAN_AddTxMessage(&hcan1, &Frame_To_Send.CAN_message, Frame_To_Send.rbuffer_data,&pTxMailbox);
+					HAL_Delay(1);
+				}
+
+				CAN_buf_RD++;
+				if(CAN_buf_RD == BUF_CIRC_SIZE) CAN_buf_RD=0;
+				val_can--;
+		break;
+		case (IO_EXPANDERS_U8_ETAT_MOT_2):
+				// Check to know if it's a data
+				if(CAN_circ_buf[CAN_buf_RD].CAN_message.RTR > 0) //Remote frame RTR=1
+				{
+					//Send data frame
+					Frame_To_Send.CAN_message.StdId = CAN_circ_buf[CAN_buf_RD].CAN_message.StdId;
+					Frame_To_Send.CAN_message.RTR = CAN_RTR_DATA;
+					Frame_To_Send.CAN_message.IDE = CAN_ID_STD;
+					Frame_To_Send.CAN_message.DLC = 2;
+					Frame_To_Send.rbuffer_data[0] = /*sens du moteur 2*/;
+					Frame_To_Send.rbuffer_data[1] = /*valeur du courant du moteur 2*/;
+
+					HAL_CAN_AddTxMessage(&hcan1, &Frame_To_Send.CAN_message, Frame_To_Send.rbuffer_data,&pTxMailbox);
+					HAL_Delay(1);
+				}
+
+				CAN_buf_RD++;
+				if(CAN_buf_RD == BUF_CIRC_SIZE) CAN_buf_RD=0;
+				val_can--;
+		break;
+		}
 }
 
 void Receive_frame_for_U11(void)
@@ -232,8 +320,9 @@ void Receive_frame_for_U11(void)
 	uint8_t traitement;
 	uint8_t donnees;
 	extern MCP23008_InitTypeDef GPIO_2;
-
-
+	switch(CAN_circ_buf[CAN_buf_RD].CAN_message.StdId & 0x0F3)
+	{
+		case (IO_EXPANDERS_U11):
 				// Check to know if it's a data or a remote frame
 				if(CAN_circ_buf[CAN_buf_RD].CAN_message.RTR > 0) //Remote frame RTR=1
 				{
@@ -284,6 +373,28 @@ void Receive_frame_for_U11(void)
 				CAN_buf_RD++;
 				if(CAN_buf_RD == BUF_CIRC_SIZE) CAN_buf_RD=0;
 				val_can--;
+		break;
+		case (IO_EXPANDERS_U11_ETAT_MOT):
+				// Check to know if it's a data
+				if(CAN_circ_buf[CAN_buf_RD].CAN_message.RTR > 0) //Remote frame RTR=1
+				{
+					//Send data frame
+					Frame_To_Send.CAN_message.StdId = CAN_circ_buf[CAN_buf_RD].CAN_message.StdId;
+					Frame_To_Send.CAN_message.RTR = CAN_RTR_DATA;
+					Frame_To_Send.CAN_message.IDE = CAN_ID_STD;
+					Frame_To_Send.CAN_message.DLC = 2;
+					Frame_To_Send.rbuffer_data[0] = /*sens du moteur*/;
+					Frame_To_Send.rbuffer_data[1] = /*valeur du courant du moteur*/;
+
+					HAL_CAN_AddTxMessage(&hcan1, &Frame_To_Send.CAN_message, Frame_To_Send.rbuffer_data,&pTxMailbox);
+					HAL_Delay(1);
+				}
+
+				CAN_buf_RD++;
+				if(CAN_buf_RD == BUF_CIRC_SIZE) CAN_buf_RD=0;
+				val_can--;
+		break;
+	}
 }
 
 void Receive_frame_for_U6(void)

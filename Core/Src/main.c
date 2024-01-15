@@ -143,6 +143,8 @@ int main(void)
 			if(MCP3008_ReadAllChannels(&ADC_1,result,100) != HAL_OK) Error_Handler();
 			INT_FLAG = 0;
 		}
+		  if (val_can>0) Receive_frame();
+
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */

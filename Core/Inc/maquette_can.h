@@ -17,14 +17,19 @@
 //IO-EXPANDERS U5 : Moteur 1 et 2 du siège
 
 #define IO_EXPANDERS_U5 0x010
+#define IO_EXPANDERS_U5_ETAT_MOT_1 0x011
+#define IO_EXPANDERS_U5_ETAT_MOT_2 0x012
 
 //IO-EXPANDERS U8 : Moteur 1 et 2 rétroviseur
 
 #define IO_EXPANDERS_U8 0x020
+#define IO_EXPANDERS_U8_ETAT_MOT_1 0x021
+#define IO_EXPANDERS_U8_ETAT_MOT_2 0x022
 
 //IO-EXPANDERS U11 : Moteur lève-vitre et antibrouillard feu arrière droit et gauche
 
 #define IO_EXPANDERS_U11 0x030
+#define IO_EXPANDERS_U11_ETAT_MOT 0x031
 
 //IO-EXPANDERS U6 : Feux avants droit et gauche
 

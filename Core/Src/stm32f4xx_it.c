@@ -42,6 +42,11 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 
+ //CAN circular buffer
+ extern uint8_t CAN_buf_WR;
+ extern uint8_t val_can;
+ extern CAN_frame_rcv CAN_circ_buf[BUF_CIRC_SIZE];
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
