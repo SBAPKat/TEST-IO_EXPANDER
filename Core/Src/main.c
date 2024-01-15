@@ -32,8 +32,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-// MCP23008 I2C address, A0-A2 are set to GND (0b0100 + A2 + A1 + A0)
-#define MCP23008_I2C_ADDRESS 0b0100000 << 1
+
+#define OVERCURRENT_THRESHOLD 7.0 //in AMPS
 
 /* USER CODE END PD */
 
@@ -58,7 +58,7 @@ TIM_HandleTypeDef htim6;
 MCP3008_InitTypeDef ADC_1 = {0};
 MCP3008_InitTypeDef ADC_2 = {0};
 MCP3008_InitTypeDef ADC_3 = {0};
-MCP3008_InitTypeDef* ADC_LIST = {&ADC_1, &ADC_2, &ADC_3};
+MCP3008_InitTypeDef *ADC_LIST[] = {&ADC_1, &ADC_2, &ADC_3};
 
 MCP23008_InitTypeDef GPIO_0 = {0};
 MCP23008_InitTypeDef GPIO_1 = {0};
@@ -140,7 +140,7 @@ int main(void)
 		if(INT_FLAG != 0){
 			if(MCP23008_WritePort(&GPIO_1, TimerTestData, 100)!= HAL_OK) Error_Handler();
 			TimerTestData = ~TimerTestData;
-			if(MCP3008_ReadAllChannels(&ADC_1,result,100) != HAL_OK) Error_Handler();
+			if(MCP3008_ReadAllChannels(&ADC_1,100) != HAL_OK) Error_Handler();
 			INT_FLAG = 0;
 		}
 		/* USER CODE END WHILE */
@@ -503,18 +503,40 @@ void TO54_UPDATE_ANALOG(){
 
 		//we check if we need to read the entire ADC
 		if(adc->update_request == 0xFF){
-			MCP3008_ReadAllChannels(adc, result, 100);
+			MCP3008_ReadAllChannels(adc, 100);
 			continue;
 		}
 
 		/* If we get here, we need to read specific channels */
 		for(uint8_t channel=0;channel<8;channel++){
-			if((adc->update_request>>channel) | 1) MCP3008_ReadChannel(adc, channel, result, 100);
+			if((adc->update_request>>channel) & 0b00000001) MCP3008_ReadChannel(adc, channel, 100);
 		}
-
-
+	}
+}
+void TO54_OVERCURRENT_ACTION(MCP3008_InitTypeDef* adc, uint8_t pin_nbr){
+	switch(adc){
+	case &ADC_0:
+	break;
+	case &ADC_1:
+	break;
+	case &ADC_2:
+	break;
 
 	}
+
+}
+void TO54_CHECK_OVERCURRENT(){
+	MCP3008_InitTypeDef* adc;
+	/* we check each ADC */
+	for(uint8_t adc_nbr = 0 ; adc_nbr < 3; adc_nbr++ ){
+		adc = ADC_LIST[adc_nbr];
+
+		/* and each input */
+		for(uint8_t i=0;i<8;i++){
+			if(adc->result[i] > OVERCURRENT_THRESHOLD) TO54_OVERCURRENT_ACTION(adc, i);
+		}
+	}
+
 }
 /* USER CODE END 4 */
 
