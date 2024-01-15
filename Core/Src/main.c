@@ -85,6 +85,14 @@ static void MX_TIM6_Init(void);
 /* USER CODE BEGIN PFP */
 
 void TO54_IOEXPANDERS_Init();
+
+void TO54_UPDATE_ANALOG();
+
+void TO54_OVERCURRENT_ACTION(MCP3008_InitTypeDef* adc, uint8_t pin_nbr);
+void TO54_ADC1_OVERCURRENT_ACTION(uint8_t pin_nbr);
+void TO54_ADC2_OVERCURRENT_ACTION(uint8_t pin_nbr);
+void TO54_ADC3_OVERCURRENT_ACTION(uint8_t pin_nbr);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -350,6 +358,19 @@ static void MX_SPI3_Init(void)
 	ADC_1.pgpio_cs = SPI_ADC1_CS_GPIO_Port;
 	ADC_1.pin_nbr = SPI_ADC1_CS_Pin;
 	ADC_1.vref = 5.206;
+	ADC_1.ID = 0;
+
+	ADC_2.phspi = &hspi3;
+	ADC_2.pgpio_cs = SPI_ADC2_CS_GPIO_Port;
+	ADC_2.pin_nbr = SPI_ADC2_CS_Pin;
+	ADC_2.vref = 5.206;
+	ADC_2.ID = 1;
+
+	ADC_3.phspi = &hspi3;
+	ADC_3.pgpio_cs = SPI_ADC3_CS_GPIO_Port;
+	ADC_3.pin_nbr = SPI_ADC3_CS_Pin;
+	ADC_3.vref = 5.206;
+	ADC_3.ID = 2;
 	/* USER CODE END SPI3_Init 2 */
 
 }
@@ -514,16 +535,85 @@ void TO54_UPDATE_ANALOG(){
 	}
 }
 void TO54_OVERCURRENT_ACTION(MCP3008_InitTypeDef* adc, uint8_t pin_nbr){
-	switch(adc){
-	case &ADC_0:
-	break;
-	case &ADC_1:
-	break;
-	case &ADC_2:
-	break;
+	switch(adc->ID){
+	case 1: //ADC0
+		TO54_ADC1_OVERCURRENT_ACTION(pin_nbr);
+		break;
+	case 2: //ADC1
+		TO54_ADC2_OVERCURRENT_ACTION(pin_nbr);
+		break;
+	case 3: //ADC2
+		TO54_ADC3_OVERCURRENT_ACTION(pin_nbr);
+		break;
 
 	}
 
+}
+
+void TO54_ADC1_OVERCURRENT_ACTION(uint8_t pin_nbr){
+	switch(pin_nbr){
+		//we need to deactivate the corresponding output to avoid damage
+	case(ADC1_FAVG_ROUTE):
+			MCP23008_WritePin(&GPIO_3, 0, 100);
+			
+			break;
+	case(ADC1_FAVG_CROISEMENT):
+			MCP
+			break;
+	case(ADC1_FAVG_CLIGNO):
+			break;
+	case(ADC1_FAVG_VEILLE):
+			break;
+	case(ADC1_FAVD_ROUTE):
+			break;
+	case(ADC1_FAVD_CROISEMENT):
+			break;
+	case(ADC1_FAVD_CLIGNO):
+			break;
+	case(ADC1_FAVD_VEILLE):
+			break;
+
+	}
+	ADC_1.update_request ^= (1<<pin_nbr);
+}
+void TO54_ADC2_OVERCURRENT_ACTION(uint8_t pin_nbr){
+	switch(pin_nbr){
+	case(ADC2_FARG_VEILLE):
+			break;
+	case(ADC2_FARG_STOP):
+			break;
+	case(ADC2_FARG_CLIGNO):
+			break;
+	case(ADC2_FARG_RECUL):
+			break;
+	case(ADC2_FARD_VEILLE):
+			break;
+	case(ADC2_FARD_STOP):
+			break;
+	case(ADC2_FARD_CLIGNO):
+			break;
+	case(ADC2_FARD_RECUL):
+			break;
+	}
+
+}
+void TO54_ADC3_OVERCURRENT_ACTION(uint8_t pin_nbr){
+	switch(pin_nbr){
+	case(ADC3_R_M1):
+			break;
+	case(ADC3_R_M2):
+			break;
+	case(ADC3_S_M1):
+			break;
+	case(ADC3_S_M2):
+			break;
+	case(ADC3_L_M1):
+			break;
+	case(ADC3_FARG_BROUILL):
+			break;
+	case(ADC3_FARD_BROUILL):
+			break;
+	}
 }
 void TO54_CHECK_OVERCURRENT(){
 	MCP3008_InitTypeDef* adc;

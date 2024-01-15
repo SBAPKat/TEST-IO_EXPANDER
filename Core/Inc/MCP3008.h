@@ -12,6 +12,37 @@
 #define ADC_START 0b10000000
 #define ADC_SINGLE_ENDED_MEASURE_MODE 0b01000000
 
+#define ADC1_FAVG_ROUTE 0
+#define ADC1_FAVG_CROISEMENT 1
+#define ADC1_FAVG_CLIGNO 2
+#define ADC1_FAVG_VEILLE 3
+
+#define ADC1_FAVD_ROUTE 4
+#define ADC1_FAVD_CROISEMENT 5
+#define ADC1_FAVD_CLIGNO 6
+#define ADC1_FAVD_VEILLE 7
+
+
+#define ADC2_FARG_VEILLE 0
+#define ADC2_FARG_STOP 1
+#define ADC2_FARG_CLIGNO 2
+#define ADC2_FARG_RECUL 3
+
+#define ADC2_FARD_VEILLE 4
+#define ADC2_FARD_STOP 5
+#define ADC2_FARD_CLIGNO 6
+#define ADC2_FARD_RECUL 7
+
+#define ADC3_R_M1 0
+#define ADC3_R_M2 1
+#define ADC3_S_M1 2
+#define ADC3_S_M2 3
+
+#define ADC3_L_M1 4
+#define ADC3_FARG_BROUILL 5
+#define ADC3_FARD_BROUILL 6
+
+
 typedef enum
 {
   ADC_OK       = 0x00U,
@@ -28,6 +59,7 @@ typedef struct{
 	float vref;
 	float result[8];
 	uint8_t update_request;
+	uint8_t ID;
 }MCP3008_InitTypeDef;
 
 
