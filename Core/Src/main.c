@@ -32,8 +32,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-// MCP23008 I2C address, A0-A2 are set to GND (0b0100 + A2 + A1 + A0)
-#define MCP23008_I2C_ADDRESS 0b0100000 << 1
+
+#define OVERCURRENT_THRESHOLD 7.0 //in AMPS
 
 /* USER CODE END PD */
 
@@ -58,7 +58,7 @@ TIM_HandleTypeDef htim6;
 MCP3008_InitTypeDef ADC_1 = {0};
 MCP3008_InitTypeDef ADC_2 = {0};
 MCP3008_InitTypeDef ADC_3 = {0};
-MCP3008_InitTypeDef* ADC_LIST = {&ADC_1, &ADC_2, &ADC_3};
+MCP3008_InitTypeDef *ADC_LIST[] = {&ADC_1, &ADC_2, &ADC_3};
 
 MCP23008_InitTypeDef GPIO_0 = {0};
 MCP23008_InitTypeDef GPIO_1 = {0};
@@ -85,6 +85,14 @@ static void MX_TIM6_Init(void);
 /* USER CODE BEGIN PFP */
 
 void TO54_IOEXPANDERS_Init();
+
+void TO54_UPDATE_ANALOG();
+
+void TO54_OVERCURRENT_ACTION(MCP3008_InitTypeDef* adc, uint8_t pin_nbr);
+void TO54_ADC1_OVERCURRENT_ACTION(uint8_t pin_nbr);
+void TO54_ADC2_OVERCURRENT_ACTION(uint8_t pin_nbr);
+void TO54_ADC3_OVERCURRENT_ACTION(uint8_t pin_nbr);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -140,7 +148,7 @@ int main(void)
 		if(INT_FLAG != 0){
 			if(MCP23008_WritePort(&GPIO_1, TimerTestData, 100)!= HAL_OK) Error_Handler();
 			TimerTestData = ~TimerTestData;
-			if(MCP3008_ReadAllChannels(&ADC_1,result,100) != HAL_OK) Error_Handler();
+			if(MCP3008_ReadAllChannels(&ADC_1,100) != HAL_OK) Error_Handler();
 			INT_FLAG = 0;
 		}
 		  if (val_can>0) Receive_frame();
@@ -352,6 +360,19 @@ static void MX_SPI3_Init(void)
 	ADC_1.pgpio_cs = SPI_ADC1_CS_GPIO_Port;
 	ADC_1.pin_nbr = SPI_ADC1_CS_Pin;
 	ADC_1.vref = 5.206;
+	ADC_1.ID = 0;
+
+	ADC_2.phspi = &hspi3;
+	ADC_2.pgpio_cs = SPI_ADC2_CS_GPIO_Port;
+	ADC_2.pin_nbr = SPI_ADC2_CS_Pin;
+	ADC_2.vref = 5.206;
+	ADC_2.ID = 1;
+
+	ADC_3.phspi = &hspi3;
+	ADC_3.pgpio_cs = SPI_ADC3_CS_GPIO_Port;
+	ADC_3.pin_nbr = SPI_ADC3_CS_Pin;
+	ADC_3.vref = 5.206;
+	ADC_3.ID = 2;
 	/* USER CODE END SPI3_Init 2 */
 
 }
@@ -505,18 +526,109 @@ void TO54_UPDATE_ANALOG(){
 
 		//we check if we need to read the entire ADC
 		if(adc->update_request == 0xFF){
-			MCP3008_ReadAllChannels(adc, result, 100);
+			MCP3008_ReadAllChannels(adc, 100);
 			continue;
 		}
 
 		/* If we get here, we need to read specific channels */
 		for(uint8_t channel=0;channel<8;channel++){
-			if((adc->update_request>>channel) | 1) MCP3008_ReadChannel(adc, channel, result, 100);
+			if((adc->update_request>>channel) & 0b00000001) MCP3008_ReadChannel(adc, channel, 100);
 		}
-
-
+	}
+}
+void TO54_OVERCURRENT_ACTION(MCP3008_InitTypeDef* adc, uint8_t pin_nbr){
+	switch(adc->ID){
+	case 1: //ADC0
+		TO54_ADC1_OVERCURRENT_ACTION(pin_nbr);
+		break;
+	case 2: //ADC1
+		TO54_ADC2_OVERCURRENT_ACTION(pin_nbr);
+		break;
+	case 3: //ADC2
+		TO54_ADC3_OVERCURRENT_ACTION(pin_nbr);
+		break;
 
 	}
+
+}
+
+void TO54_ADC1_OVERCURRENT_ACTION(uint8_t pin_nbr){
+	switch(pin_nbr){
+		//we need to deactivate the corresponding output to avoid damage
+	case(ADC1_FAVG_ROUTE):
+			MCP23008_WritePin(&GPIO_3, 0, 100);
+			
+			break;
+	case(ADC1_FAVG_CROISEMENT):
+			MCP
+			break;
+	case(ADC1_FAVG_CLIGNO):
+			break;
+	case(ADC1_FAVG_VEILLE):
+			break;
+	case(ADC1_FAVD_ROUTE):
+			break;
+	case(ADC1_FAVD_CROISEMENT):
+			break;
+	case(ADC1_FAVD_CLIGNO):
+			break;
+	case(ADC1_FAVD_VEILLE):
+			break;
+
+	}
+	ADC_1.update_request ^= (1<<pin_nbr);
+}
+void TO54_ADC2_OVERCURRENT_ACTION(uint8_t pin_nbr){
+	switch(pin_nbr){
+	case(ADC2_FARG_VEILLE):
+			break;
+	case(ADC2_FARG_STOP):
+			break;
+	case(ADC2_FARG_CLIGNO):
+			break;
+	case(ADC2_FARG_RECUL):
+			break;
+	case(ADC2_FARD_VEILLE):
+			break;
+	case(ADC2_FARD_STOP):
+			break;
+	case(ADC2_FARD_CLIGNO):
+			break;
+	case(ADC2_FARD_RECUL):
+			break;
+	}
+
+}
+void TO54_ADC3_OVERCURRENT_ACTION(uint8_t pin_nbr){
+	switch(pin_nbr){
+	case(ADC3_R_M1):
+			break;
+	case(ADC3_R_M2):
+			break;
+	case(ADC3_S_M1):
+			break;
+	case(ADC3_S_M2):
+			break;
+	case(ADC3_L_M1):
+			break;
+	case(ADC3_FARG_BROUILL):
+			break;
+	case(ADC3_FARD_BROUILL):
+			break;
+	}
+}
+void TO54_CHECK_OVERCURRENT(){
+	MCP3008_InitTypeDef* adc;
+	/* we check each ADC */
+	for(uint8_t adc_nbr = 0 ; adc_nbr < 3; adc_nbr++ ){
+		adc = ADC_LIST[adc_nbr];
+
+		/* and each input */
+		for(uint8_t i=0;i<8;i++){
+			if(adc->result[i] > OVERCURRENT_THRESHOLD) TO54_OVERCURRENT_ACTION(adc, i);
+		}
+	}
+
 }
 /* USER CODE END 4 */
 
