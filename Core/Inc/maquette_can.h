@@ -71,7 +71,7 @@ extern uint8_t val_can;
 extern uint32_t pTxMailbox;
 CAN_FilterTypeDef Myfilter;
 extern CAN_HandleTypeDef hcan1;
-
+/*
 //Components variables
 extern uint8_t Comodos_PORTA;
 extern uint8_t Comodos_PORTB;
@@ -107,7 +107,8 @@ extern uint8_t Feux_av_PORTC;
 extern uint8_t Feux_ar_PORTA;
 extern uint8_t Feux_ar_PORTB;
 extern uint8_t Feux_ar_PORTC;
-
+*/
+/*
 //Prototypes
 void init_circular_buffer(void);
 void Receive_frame(void);
@@ -118,7 +119,7 @@ void Receive_frame_feux_av(void);
 void Receive_frame_portiere(void);
 void init_can(void);
 void Init_send_frame(void);
-
+*/
 //Nouvelles fonctions
 void Receive_frame_for_U5(void);
 void Receive_frame_for_U8(void);

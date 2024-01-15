@@ -13,7 +13,7 @@ void init_circular_buffer(void)
 	val_can =0;
 }
 
-
+/*
 void init_can(void)
 {
 	  //Cfg Filters for RX0
@@ -81,7 +81,7 @@ void init_can(void)
 	  HAL_CAN_ActivateNotification(&hcan1,CAN_IT_RX_FIFO0_MSG_PENDING);
 	  HAL_CAN_Start(&hcan1);
 }
-
+*/
 void Receive_frame(void)
 {
 	switch(CAN_circ_buf[CAN_buf_RD].CAN_message.StdId & 0x7F0)
@@ -109,6 +109,7 @@ void Receive_frame_for_U5(void)
 	CAN_frame_Tx Frame_To_Send;
 	uint8_t traitement;
 	uint8_t donnees;
+	extern MCP23008_InitTypeDef GPIO_0;
 
 				// Check to know if it's a data or a remote frame
 				if(CAN_circ_buf[CAN_buf_RD].CAN_message.RTR > 0) //Remote frame RTR=1
@@ -118,7 +119,7 @@ void Receive_frame_for_U5(void)
 					Frame_To_Send.CAN_message.RTR = CAN_RTR_DATA;
 					Frame_To_Send.CAN_message.IDE = CAN_ID_STD;
 					Frame_To_Send.CAN_message.DLC = 1;
-					Frame_To_Send.rbuffer_data[0] = MCP23008_ReadAllPin(MCP23008_InitTypeDef* MCP23008_dev, uint32_t timeout);
+					Frame_To_Send.rbuffer_data[0] = GPIO_0->currentStatus;
 
 					HAL_CAN_AddTxMessage(&hcan1, &Frame_To_Send.CAN_message, Frame_To_Send.rbuffer_data,&pTxMailbox);
 					HAL_Delay(1);
@@ -131,18 +132,18 @@ void Receive_frame_for_U5(void)
 						traitement = CAN_circ_buf[CAN_buf_RD].rbuffer_data[0] | 0xCC; //Filtre la donnée reçue pour laisser les bits 7, 6, 3 et 2 à 1 au cas où l'étudiant les auraient mis à 0
 						if(traitement&0x30!=0x30)//Regarde si les bits 4 et 5 sont différents de 11
 						{
-							donnees = MCP23008_ReadAllPin(MCP23008_InitTypeDef* MCP23008_dev, uint32_t timeout);
+							donnees = GPIO_0->currentStatus;
 							donnees &= 0xCF; // Met à 0 les bits 4 et 5
 							donnees |= (traitement & 0xF0) // Isole les bits 4, 5, 6 et 7 de la donnée reçue et les met dans la variable qui modifie les IO Expanders
-							MCP23008_WritePort(MCP23008_InitTypeDef* MCP23008_dev, donnees, uint32_t timeout);
+							MCP23008_WritePort(&GPIO_0, donnees, 100);
 						}
 						if (traitement&0x03!=0x03)
 						{
 							//Regarde si les bits 0 et 1 sont différents de 11
-							donnees = MCP23008_ReadAllPin(MCP23008_InitTypeDef* MCP23008_dev, uint32_t timeout);
+							donnees = GPIO_0->currentStatus;
 							donnees &= 0xFC; // Met à 0 les bits 0 et 1
 							donnees |= (traitement & 0x0F) // Isole les bits 0, 1, 2 et 3 de la donnée reçue et les met dans la variable qui modifie les IO Expanders
-							MCP23008_WritePort(MCP23008_InitTypeDef* MCP23008_dev, donnees, uint32_t timeout);
+							MCP23008_WritePort(&GPIO_0, donnees, 100);
 						}
 					}
 					else
@@ -169,6 +170,8 @@ void Receive_frame_for_U8(void)
 	CAN_frame_Tx Frame_To_Send;
 	uint8_t traitement;
 	uint8_t donnees;
+	extern MCP23008_InitTypeDef GPIO_1;
+
 
 				// Check to know if it's a data or a remote frame
 				if(CAN_circ_buf[CAN_buf_RD].CAN_message.RTR > 0) //Remote frame RTR=1
@@ -178,7 +181,7 @@ void Receive_frame_for_U8(void)
 					Frame_To_Send.CAN_message.RTR = CAN_RTR_DATA;
 					Frame_To_Send.CAN_message.IDE = CAN_ID_STD;
 					Frame_To_Send.CAN_message.DLC = 1;
-					Frame_To_Send.rbuffer_data[0] = MCP23008_ReadAllPin(MCP23008_InitTypeDef* MCP23008_dev, uint32_t timeout);
+					Frame_To_Send.rbuffer_data[0] = GPIO_1->currentStatus;
 
 					HAL_CAN_AddTxMessage(&hcan1, &Frame_To_Send.CAN_message, Frame_To_Send.rbuffer_data,&pTxMailbox);
 					HAL_Delay(1);
@@ -191,17 +194,17 @@ void Receive_frame_for_U8(void)
 						traitement = CAN_circ_buf[CAN_buf_RD].rbuffer_data[0] | 0xCC; //Filtre la donnée reçue pour laisser les bits 7, 6, 3 et 2 à 1 au cas où l'étudiant les auraient mis à 0
 						if(traitement&0x30!=0x30)//Regarde si les bits 4 et 5 sont différents de 11
 						{
-							donnees = MCP23008_ReadAllPin(MCP23008_InitTypeDef* MCP23008_dev, uint32_t timeout);
+							donnees = GPIO_1->currentStatus;
 							donnees &= 0xCF; // Met à 0 les bits 4 et 5
 							donnees |= (traitement & 0xF0) // Isole les bits 4, 5, 6 et 7 de la donnée reçue et les met dans la variable qui modifie les IO Expanders
-								MCP23008_WritePort(MCP23008_InitTypeDef* MCP23008_dev, donnees, uint32_t timeout);
+							MCP23008_WritePort(&GPIO_1, donnees, 100);
 						}
 						if(traitement&0x03!=0x03)//Regarde si les bits 0 et 1 sont différents de 11
 						{
-							donnees = MCP23008_ReadAllPin(MCP23008_InitTypeDef* MCP23008_dev, uint32_t timeout);
+							donnees = GPIO_1->currentStatus;
 							donnees &= 0xFC; // Met à 0 les bits 0 et 1
 							donnees |= (traitement & 0x0F) // Isole les bits 0, 1, 2 et 3 de la donnée reçue et les met dans la variable qui modifie les IO Expanders
-								MCP23008_WritePort(MCP23008_InitTypeDef* MCP23008_dev, donnees, uint32_t timeout);
+							MCP23008_WritePort(&GPIO_1, donnees, 100);
 						}
 					}
 					else
@@ -228,6 +231,8 @@ void Receive_frame_for_U11(void)
 	CAN_frame_Tx Frame_To_Send;
 	uint8_t traitement;
 	uint8_t donnees;
+	extern MCP23008_InitTypeDef GPIO_2;
+
 
 				// Check to know if it's a data or a remote frame
 				if(CAN_circ_buf[CAN_buf_RD].CAN_message.RTR > 0) //Remote frame RTR=1
@@ -237,7 +242,7 @@ void Receive_frame_for_U11(void)
 					Frame_To_Send.CAN_message.RTR = CAN_RTR_DATA;
 					Frame_To_Send.CAN_message.IDE = CAN_ID_STD;
 					Frame_To_Send.CAN_message.DLC = 1;
-					Frame_To_Send.rbuffer_data[0] = MCP23008_ReadAllPin(MCP23008_InitTypeDef* MCP23008_dev, uint32_t timeout);
+					Frame_To_Send.rbuffer_data[0] = GPIO_2->currentStatus;
 
 					HAL_CAN_AddTxMessage(&hcan1, &Frame_To_Send.CAN_message, Frame_To_Send.rbuffer_data,&pTxMailbox);
 					HAL_Delay(1);
@@ -247,14 +252,19 @@ void Receive_frame_for_U11(void)
 					//check if DLC is correct
 					if(CAN_circ_buf[CAN_buf_RD].CAN_message.DLC == 1)
 					{
-						traitement = CAN_circ_buf[CAN_buf_RD].rbuffer_data[0] | 0x0C; //Filtre la donnée reçue pour laisser les bits 7, 6, 3 et 2 à 1 au cas où l'étudiant les auraient mis à 0
+						traitement = CAN_circ_buf[CAN_buf_RD].rbuffer_data[0] | 0x0C; //Filtre la donnée reçue pour laisser les bits 3 et 2 à 1 au cas où l'étudiant les auraient mis à 0
 						if (traitement&0x03!=0x03)//Regarde si les bits 0 et 1 sont différents de 11
-						{
-							donnees = MCP23008_ReadAllPin(MCP23008_InitTypeDef* MCP23008_dev, uint32_t timeout);
+						{	//Moteur
+							donnees = GPIO_2->currentStatus;
 							donnees &= 0xFC; // Met à 0 les bits 0 et 1
 							donnees |= (traitement & 0x0F); // Isole les bits 0, 1, 2 et 3 de la donnée reçue et les met dans la variable qui modifie les IO Expanders
+							//Feux
 							donnees ^= (traitement & 0x30); // Isole les bits 4 et 5 de la donnée reçue et change l'état de ceux de la donnée récupérée à l'IO Expander
-							MCP23008_WritePort(MCP23008_InitTypeDef* MCP23008_dev, donnees, uint32_t timeout);
+							MCP23008_WritePort(&GPIO_2, donnees, 100);
+						}
+						else
+						{	//Feux
+							donnees ^= (traitement & 0x30); // Isole les bits 4 et 5 de la donnée reçue et change l'état de ceux de la donnée récupérée à l'IO Expander
 						}
 					}
 					else
@@ -280,6 +290,8 @@ void Receive_frame_for_U6(void)
 {
 	CAN_frame_Tx Frame_To_Send;
 	uint8_t traitement;
+	extern MCP23008_InitTypeDef GPIO_3;
+
 
 				// Check to know if it's a data or a remote frame
 				if(CAN_circ_buf[CAN_buf_RD].CAN_message.RTR > 0) //Remote frame RTR=1
@@ -289,7 +301,7 @@ void Receive_frame_for_U6(void)
 					Frame_To_Send.CAN_message.RTR = CAN_RTR_DATA;
 					Frame_To_Send.CAN_message.IDE = CAN_ID_STD;
 					Frame_To_Send.CAN_message.DLC = 1;
-					Frame_To_Send.rbuffer_data[0] = MCP23008_ReadAllPin(MCP23008_InitTypeDef* MCP23008_dev, uint32_t timeout);
+					Frame_To_Send.rbuffer_data[0] = GPIO_3->currentStatus;
 
 					HAL_CAN_AddTxMessage(&hcan1, &Frame_To_Send.CAN_message, Frame_To_Send.rbuffer_data,&pTxMailbox);
 					HAL_Delay(1);
@@ -300,9 +312,9 @@ void Receive_frame_for_U6(void)
 					if(CAN_circ_buf[CAN_buf_RD].CAN_message.DLC == 1)
 					{
 						traitement = CAN_circ_buf[CAN_buf_RD].rbuffer_data[0];
-						donnees = MCP23008_ReadAllPin(MCP23008_InitTypeDef* MCP23008_dev, uint32_t timeout);
+						donnees = GPIO_3->currentStatus;
 						donnees ^= traitement;
-						MCP23008_WritePort(MCP23008_InitTypeDef* MCP23008_dev, donnees, uint32_t timeout);
+						MCP23008_WritePort(GPIO_3, donnees, 100);
 					}
 					else
 					{
@@ -327,6 +339,8 @@ void Receive_frame_for_U10(void)
 {
 	CAN_frame_Tx Frame_To_Send;
 	uint8_t traitement;
+	extern MCP23008_InitTypeDef GPIO_4;
+
 
 				// Check to know if it's a data or a remote frame
 				if(CAN_circ_buf[CAN_buf_RD].CAN_message.RTR > 0) //Remote frame RTR=1
@@ -336,7 +350,7 @@ void Receive_frame_for_U10(void)
 					Frame_To_Send.CAN_message.RTR = CAN_RTR_DATA;
 					Frame_To_Send.CAN_message.IDE = CAN_ID_STD;
 					Frame_To_Send.CAN_message.DLC = 1;
-					Frame_To_Send.rbuffer_data[0] = MCP23008_ReadAllPin(MCP23008_InitTypeDef* MCP23008_dev, uint32_t timeout);
+					Frame_To_Send.rbuffer_data[0] = GPIO_4->currentStatus;
 
 					HAL_CAN_AddTxMessage(&hcan1, &Frame_To_Send.CAN_message, Frame_To_Send.rbuffer_data,&pTxMailbox);
 					HAL_Delay(1);
@@ -347,9 +361,9 @@ void Receive_frame_for_U10(void)
 					if(CAN_circ_buf[CAN_buf_RD].CAN_message.DLC == 1)
 					{
 						traitement = CAN_circ_buf[CAN_buf_RD].rbuffer_data[0];
-						donnees = MCP23008_ReadAllPin(MCP23008_InitTypeDef* MCP23008_dev, uint32_t timeout);
+						donnees = GPIO_4->currentStatus;
 						donnees ^= traitement;
-						MCP23008_WritePort(MCP23008_InitTypeDef* MCP23008_dev, donnees, uint32_t timeout);
+						MCP23008_WritePort(&GPIO_4, donnees, 100);
 					}
 					else
 					{
