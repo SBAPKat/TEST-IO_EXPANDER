@@ -27,6 +27,7 @@ typedef struct{
 	ADC_StatusTypeDef status;
 	float vref;
 	float result[8];
+	uint8_t update_request;
 }MCP3008_InitTypeDef;
 
 

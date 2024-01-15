@@ -58,6 +58,7 @@ TIM_HandleTypeDef htim6;
 MCP3008_InitTypeDef ADC_1 = {0};
 MCP3008_InitTypeDef ADC_2 = {0};
 MCP3008_InitTypeDef ADC_3 = {0};
+MCP3008_InitTypeDef* ADC_LIST = {&ADC_1, &ADC_2, &ADC_3};
 
 MCP23008_InitTypeDef GPIO_0 = {0};
 MCP23008_InitTypeDef GPIO_1 = {0};
@@ -69,6 +70,7 @@ MCP23008_InitTypeDef GPIO_6 = {0};
 MCP23008_InitTypeDef GPIO_7 = {0};
 
 uint8_t INT_FLAG =0;
+
 
 /* USER CODE END PV */
 
@@ -492,7 +494,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	}
 }
 
-void TO54_UPDATE_ANALOG();
+void TO54_UPDATE_ANALOG(){
+	MCP3008_InitTypeDef* adc;
+	for(uint8_t adc_nbr = 0 ; adc_nbr < 3; adc_nbr++ ){
+		adc = ADC_LIST[adc_nbr];
+	if(adc->update_request == 0xFF) MCP3008_ReadAllChannels(adc, result, 100);
+	}
+}
 /* USER CODE END 4 */
 
 /**
