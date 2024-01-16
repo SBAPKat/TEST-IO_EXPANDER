@@ -10,6 +10,7 @@
 
 //includes
 #include "stm32f4xx_hal.h"
+#include "MCP23008.h"
 
 //defines
 #define BUF_CIRC_SIZE 20
