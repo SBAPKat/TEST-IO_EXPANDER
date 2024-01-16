@@ -38,7 +38,6 @@
 #define OVERCURRENT_THRESHOLD_V OVERCURRENT_THRESHOLD/SHUNT_R
 /* USER CODE END PD */
 
-
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 
@@ -94,6 +93,7 @@ void TO54_OVERCURRENT_ACTION(MCP3008_InitTypeDef* adc, uint8_t pin_nbr);
 void TO54_ADC1_OVERCURRENT_ACTION(uint8_t pin_nbr);
 void TO54_ADC2_OVERCURRENT_ACTION(uint8_t pin_nbr);
 void TO54_ADC3_OVERCURRENT_ACTION(uint8_t pin_nbr);
+void TO54_CHECK_OVERCURRENT();
 
 /* USER CODE END PFP */
 
@@ -145,15 +145,18 @@ int main(void)
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
+	MCP23008_WritePin(&GPIO_2, 0,1, 100);
+	ADC_2.update_request ^= ADC2_FARG_VEILLE;
 	while (1)
 	{
 		if(INT_FLAG != 0){
 			if(MCP23008_WritePort(&GPIO_1, TimerTestData, 100)!= HAL_OK) Error_Handler();
 			TimerTestData = ~TimerTestData;
-			if(MCP3008_ReadAllChannels(&ADC_1,100) != HAL_OK) Error_Handler();
+			TO54_UPDATE_ANALOG();
+			TO54_CHECK_OVERCURRENT();
 			INT_FLAG = 0;
 		}
-		  if (val_can>0) Receive_frame();
+		//		  if (val_can>0) Receive_frame();
 
 		/* USER CODE END WHILE */
 
@@ -348,7 +351,7 @@ static void MX_SPI3_Init(void)
 	hspi3.Init.CLKPolarity = SPI_POLARITY_LOW;
 	hspi3.Init.CLKPhase = SPI_PHASE_1EDGE;
 	hspi3.Init.NSS = SPI_NSS_SOFT;
-	hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
+	hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
 	hspi3.Init.FirstBit = SPI_FIRSTBIT_MSB;
 	hspi3.Init.TIMode = SPI_TIMODE_DISABLE;
 	hspi3.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -361,19 +364,19 @@ static void MX_SPI3_Init(void)
 	ADC_1.phspi = &hspi3;
 	ADC_1.pgpio_cs = SPI_ADC1_CS_GPIO_Port;
 	ADC_1.pin_nbr = SPI_ADC1_CS_Pin;
-	ADC_1.vref = 5.206;
+	ADC_1.vref = 5.305;
 	ADC_1.ID = 0;
 
 	ADC_2.phspi = &hspi3;
 	ADC_2.pgpio_cs = SPI_ADC2_CS_GPIO_Port;
 	ADC_2.pin_nbr = SPI_ADC2_CS_Pin;
-	ADC_2.vref = 5.206;
+	ADC_2.vref = 5.305;
 	ADC_2.ID = 1;
 
 	ADC_3.phspi = &hspi3;
 	ADC_3.pgpio_cs = SPI_ADC3_CS_GPIO_Port;
 	ADC_3.pin_nbr = SPI_ADC3_CS_Pin;
-	ADC_3.vref = 5.206;
+	ADC_3.vref = 5.305;
 	ADC_3.ID = 2;
 	/* USER CODE END SPI3_Init 2 */
 
@@ -556,31 +559,31 @@ void TO54_OVERCURRENT_ACTION(MCP3008_InitTypeDef* adc, uint8_t pin_nbr){
 
 void TO54_ADC1_OVERCURRENT_ACTION(uint8_t pin_nbr){
 	switch(pin_nbr){
-		//we need to deactivate the corresponding output to avoid damage
+	//we need to deactivate the corresponding output to avoid damage
 	case(ADC1_FAVG_ROUTE):
-			MCP23008_WritePin(&GPIO_3, 0,0, 100);
-			break;
+									MCP23008_WritePin(&GPIO_3, 0,0, 100);
+	break;
 	case(ADC1_FAVG_CROISEMENT):
-			MCP23008_WritePin(&GPIO_3, 1,0, 100);
-			break;
+									MCP23008_WritePin(&GPIO_3, 1,0, 100);
+	break;
 	case(ADC1_FAVG_CLIGNO):
-			MCP23008_WritePin(&GPIO_3, 2,0, 100);
-			break;
+									MCP23008_WritePin(&GPIO_3, 2,0, 100);
+	break;
 	case(ADC1_FAVG_VEILLE):
-			MCP23008_WritePin(&GPIO_3, 3,0, 100);
-			break;
+									MCP23008_WritePin(&GPIO_3, 3,0, 100);
+	break;
 	case(ADC1_FAVD_ROUTE):
-			MCP23008_WritePin(&GPIO_3, 4,0, 100);
-			break;
+									MCP23008_WritePin(&GPIO_3, 4,0, 100);
+	break;
 	case(ADC1_FAVD_CROISEMENT):
-			MCP23008_WritePin(&GPIO_3, 5,0, 100);
-			break;
+									MCP23008_WritePin(&GPIO_3, 5,0, 100);
+	break;
 	case(ADC1_FAVD_CLIGNO):
-			MCP23008_WritePin(&GPIO_3, 6,0, 100);
-			break;
+									MCP23008_WritePin(&GPIO_3, 6,0, 100);
+	break;
 	case(ADC1_FAVD_VEILLE):
-			MCP23008_WritePin(&GPIO_3, 7,0, 100);
-			break;
+									MCP23008_WritePin(&GPIO_3, 7,0, 100);
+	break;
 
 	}
 	ADC_1.update_request ^= 1 << pin_nbr;
@@ -589,30 +592,30 @@ void TO54_ADC1_OVERCURRENT_ACTION(uint8_t pin_nbr){
 void TO54_ADC2_OVERCURRENT_ACTION(uint8_t pin_nbr){
 	switch(pin_nbr){
 	case(ADC2_FARG_VEILLE):
-			MCP23008_WritePin(&GPIO_2, 0,0, 100);
+									MCP23008_WritePin(&GPIO_2, 0,0, 100);
 
-			break;
+	break;
 	case(ADC2_FARG_STOP):
-			MCP23008_WritePin(&GPIO_2, 1,0, 100);
-			break;
+									MCP23008_WritePin(&GPIO_2, 1,0, 100);
+	break;
 	case(ADC2_FARG_CLIGNO):
-			MCP23008_WritePin(&GPIO_2, 2,0, 100);
-			break;
+									MCP23008_WritePin(&GPIO_2, 2,0, 100);
+	break;
 	case(ADC2_FARG_RECUL):
-			MCP23008_WritePin(&GPIO_2, 3,0, 100);
-			break;
+									MCP23008_WritePin(&GPIO_2, 3,0, 100);
+	break;
 	case(ADC2_FARD_VEILLE):
-			MCP23008_WritePin(&GPIO_2, 4,0, 100);
-			break;
+									MCP23008_WritePin(&GPIO_2, 4,0, 100);
+	break;
 	case(ADC2_FARD_STOP):
-			MCP23008_WritePin(&GPIO_2, 5,0, 100);
-			break;
+									MCP23008_WritePin(&GPIO_2, 5,0, 100);
+	break;
 	case(ADC2_FARD_CLIGNO):
-			MCP23008_WritePin(&GPIO_2, 6,0, 100);
-			break;
+									MCP23008_WritePin(&GPIO_2, 6,0, 100);
+	break;
 	case(ADC2_FARD_RECUL):
-			MCP23008_WritePin(&GPIO_2, 7,0, 100);
-			break;
+									MCP23008_WritePin(&GPIO_2, 7,0, 100);
+	break;
 	}
 	ADC_2.update_request ^= 1 << pin_nbr;
 	MCP3008_ReadChannel(&ADC_2, pin_nbr, 100);
@@ -622,31 +625,31 @@ void TO54_ADC2_OVERCURRENT_ACTION(uint8_t pin_nbr){
 void TO54_ADC3_OVERCURRENT_ACTION(uint8_t pin_nbr){
 	switch(pin_nbr){
 	case(ADC3_R_M1):
-			MCP23008_WritePin(&GPIO_1, 0, 0, 100);
-			MCP23008_WritePin(&GPIO_1, 1, 0, 100);
-			break;
+									MCP23008_WritePin(&GPIO_1, 0, 0, 100);
+	MCP23008_WritePin(&GPIO_1, 1, 0, 100);
+	break;
 	case(ADC3_R_M2):
-			MCP23008_WritePin(&GPIO_1, 4, 0, 100);
-			MCP23008_WritePin(&GPIO_1, 5, 0, 100);
-			break;
+									MCP23008_WritePin(&GPIO_1, 4, 0, 100);
+	MCP23008_WritePin(&GPIO_1, 5, 0, 100);
+	break;
 	case(ADC3_S_M1):
-			MCP23008_WritePin(&GPIO_0, 0, 0, 100);
-			MCP23008_WritePin(&GPIO_0, 1, 0, 100);
-			break;
+									MCP23008_WritePin(&GPIO_0, 0, 0, 100);
+	MCP23008_WritePin(&GPIO_0, 1, 0, 100);
+	break;
 	case(ADC3_S_M2):
-			MCP23008_WritePin(&GPIO_0, 4, 0, 100);
-			MCP23008_WritePin(&GPIO_0, 5, 0, 100);
-			break;
+									MCP23008_WritePin(&GPIO_0, 4, 0, 100);
+	MCP23008_WritePin(&GPIO_0, 5, 0, 100);
+	break;
 	case(ADC3_L_M1):
-			MCP23008_WritePin(&GPIO_4, 0, 0, 100);
-			MCP23008_WritePin(&GPIO_4, 1, 0, 100);
-			break;
+									MCP23008_WritePin(&GPIO_4, 0, 0, 100);
+	MCP23008_WritePin(&GPIO_4, 1, 0, 100);
+	break;
 	case(ADC3_FARG_BROUILL):
-			MCP23008_WritePin(&GPIO_4, 4, 0, 100);
-			break;
+									MCP23008_WritePin(&GPIO_4, 4, 0, 100);
+	break;
 	case(ADC3_FARD_BROUILL):
-			MCP23008_WritePin(&GPIO_4, 5, 0, 100);
-			break;
+									MCP23008_WritePin(&GPIO_4, 5, 0, 100);
+	break;
 	}
 	ADC_3.update_request ^= 1 << pin_nbr;
 	MCP3008_ReadChannel(&ADC_3, pin_nbr, 100);
@@ -659,7 +662,7 @@ void TO54_CHECK_OVERCURRENT(){
 
 		/* and each input */
 		for(uint8_t i=0;i<8;i++){
-			if(adc->result[i] > OVERCURRENT_THRESHOLD) TO54_OVERCURRENT_ACTION(adc, i);
+			if(adc->result[i] > OVERCURRENT_THRESHOLD_V) TO54_OVERCURRENT_ACTION(adc, i);
 		}
 	}
 

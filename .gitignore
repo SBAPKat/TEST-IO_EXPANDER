@@ -4,3 +4,16 @@
 *.o
 Debug/Core/Src/MCP3008.su
 *.cyclo
+.settings/language.settings.xml
+*.xml
+*.prefs
+.settings/language.settings.xml
+.settings/stm32cubeide.project.prefs
+*.cyclo
+*.su
+*.d
+*.elf
+*.list
+*.map
+*.launch
+*.d
