@@ -31,14 +31,17 @@
 
 #define IO_EXPANDERS_U11 0x030
 #define IO_EXPANDERS_U11_ETAT_MOT 0x031
+#define IO_EXPANDERS_U11_ETAT_FEUX 0x032
 
 //IO-EXPANDERS U6 : Feux avants droit et gauche
 
 #define IO_EXPANDERS_U6 0x040
+#define IO_EXPANDERS_U6_ETAT_FEUX 0X041
 
 //IO-EXPANDERS U10 : Feux arrières droit et gauche sauf feux de brouillard (voir IO_EXPANDERS_U8 adresse 0x020)
 
 #define IO_EXPANDERS_U10 0x050
+#define IO_EXPANDERS_U10_ETAT_FEUX 0x051
 
 //IO-EXPANDERS U7 : Futures GPIO
 
