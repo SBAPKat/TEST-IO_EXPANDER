@@ -48,7 +48,7 @@ HAL_StatusTypeDef MCP3008_ReadChannel(MCP3008_InitTypeDef* MCP3008_dev, uint8_t 
 }
 
 
-HAL_StatusTypeDef MCP3008_ReadAllChannels(MCP3008_InitTypeDef* MCP3008_dev, float* result, uint32_t timeout){
+HAL_StatusTypeDef MCP3008_ReadAllChannels(MCP3008_InitTypeDef* MCP3008_dev, uint32_t timeout){
 	for( uint8_t channel = 0 ; channel < 8 ; channel++ ){
 		if( MCP3008_ReadChannel(MCP3008_dev, channel, timeout) != HAL_OK ) return HAL_ERROR;
 		//HAL_Delay(1);
@@ -61,7 +61,7 @@ HAL_StatusTypeDef MCP3008_Polling_Benchmark(MCP3008_InitTypeDef* MCP3008_dev, ui
 	uint32_t conversion_number = 0;
 	uint32_t start = HAL_GetTick();
 	while( HAL_GetTick() - start < 1000){
-		if( MCP3008_ReadChannel(MCP3008_dev, channel_id, NULL, timeout) != HAL_OK) return HAL_ERROR;
+		if( MCP3008_ReadChannel(MCP3008_dev, channel_id, timeout) != HAL_OK) return HAL_ERROR;
 		conversion_number++;
 	}
 	*ksps = ( conversion_number / 1000.0 ) / ( timeout / 1000.0 );

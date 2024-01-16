@@ -1,0 +1,3 @@
+../Core/Src/MCP3008.c:9:19:MCP3008_ReadChannel	48	static
+../Core/Src/MCP3008.c:51:19:MCP3008_ReadAllChannels	24	static
+../Core/Src/MCP3008.c:60:19:MCP3008_Polling_Benchmark	40	static

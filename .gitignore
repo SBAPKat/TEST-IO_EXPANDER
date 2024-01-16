@@ -1,3 +1,6 @@
 
 .settings/language.settings.xml
 .settings/stm32cubeide.project.prefs
+*.o
+Debug/Core/Src/MCP3008.su
+*.cyclo
