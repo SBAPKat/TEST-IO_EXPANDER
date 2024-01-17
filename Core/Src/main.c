@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "MCP3008.h"
 #include "MCP23008.h"
+#include "maquette_can.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -71,6 +72,15 @@ MCP23008_InitTypeDef GPIO_6 = {0};
 MCP23008_InitTypeDef GPIO_7 = {0};
 
 uint8_t INT_FLAG =0;
+
+//CAN
+uint32_t pTxMailbox;
+
+//CAN circular buffer
+uint8_t CAN_buf_RD;
+uint8_t CAN_buf_WR;
+uint8_t val_can;
+CAN_frame_rcv CAN_circ_buf[BUF_CIRC_SIZE];
 
 
 /* USER CODE END PV */
@@ -141,6 +151,7 @@ int main(void)
 
 	HAL_TIM_Base_Start(&htim6);
 	float result[8] = {0};
+	init_circular_buffer();
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -156,7 +167,7 @@ int main(void)
 			TO54_CHECK_OVERCURRENT();
 			INT_FLAG = 0;
 		}
-		//		  if (val_can>0) Receive_frame();
+	if (val_can>0) Receive_frame();
 
 		/* USER CODE END WHILE */
 

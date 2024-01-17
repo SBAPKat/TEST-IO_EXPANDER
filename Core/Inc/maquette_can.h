@@ -10,7 +10,6 @@
 
 //includes
 #include "stm32f4xx_hal.h"
-#include "MCP23008.h"
 
 //defines
 #define BUF_CIRC_SIZE 20
@@ -78,7 +77,7 @@ extern uint8_t val_can;
 
 //Can frame variables
 extern uint32_t pTxMailbox;
-CAN_FilterTypeDef Myfilter;
+//CAN_FilterTypeDef Myfilter;
 extern CAN_HandleTypeDef hcan1;
 /*
 //Components variables

@@ -1,0 +1,7 @@
+../Core/Src/maquette_can.c:15:6:init_circular_buffer	1
+../Core/Src/maquette_can.c:22:6:Receive_frame	9
+../Core/Src/maquette_can.c:44:6:Receive_frame_for_U5	15
+../Core/Src/maquette_can.c:165:6:Receive_frame_for_U8	12
+../Core/Src/maquette_can.c:285:6:Receive_frame_for_U11	12
+../Core/Src/maquette_can.c:400:6:Receive_frame_for_U6	8
+../Core/Src/maquette_can.c:482:6:Receive_frame_for_U10	8

@@ -34,34 +34,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := TEST-IO_EXPANDER-ADC
+BUILD_ARTIFACT_NAME := TEST-IO_EXPANDER
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-TEST-IO_EXPANDER-ADC.elf \
+TEST-IO_EXPANDER.elf \
 
 MAP_FILES += \
-TEST-IO_EXPANDER-ADC.map \
+TEST-IO_EXPANDER.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-TEST-IO_EXPANDER-ADC.list \
+TEST-IO_EXPANDER.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: TEST-IO_EXPANDER-ADC.elf secondary-outputs
+main-build: TEST-IO_EXPANDER.elf secondary-outputs
 
 # Tool invocations
-TEST-IO_EXPANDER-ADC.elf TEST-IO_EXPANDER-ADC.map: $(OBJS) $(USER_OBJS) C:\Users\sbapk\STM32CubeIDE\workspace_1.14.0\TEST-IO_EXPANDER\STM32F407VGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "TEST-IO_EXPANDER-ADC.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\sbapk\STM32CubeIDE\workspace_1.14.0\TEST-IO_EXPANDER\STM32F407VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="TEST-IO_EXPANDER-ADC.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+TEST-IO_EXPANDER.elf TEST-IO_EXPANDER.map: $(OBJS) $(USER_OBJS) C:\Users\pablo\Documents\UTBM\5A\Cours\TO54\Workspace\TEST-IO_EXPANDER\STM32F407VGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "TEST-IO_EXPANDER.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\pablo\Documents\UTBM\5A\Cours\TO54\Workspace\TEST-IO_EXPANDER\STM32F407VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="TEST-IO_EXPANDER.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -70,14 +70,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-TEST-IO_EXPANDER-ADC.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "TEST-IO_EXPANDER-ADC.list"
+TEST-IO_EXPANDER.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "TEST-IO_EXPANDER.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) TEST-IO_EXPANDER-ADC.elf TEST-IO_EXPANDER-ADC.list TEST-IO_EXPANDER-ADC.map default.size.stdout
+	-$(RM) TEST-IO_EXPANDER.elf TEST-IO_EXPANDER.list TEST-IO_EXPANDER.map default.size.stdout
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)
