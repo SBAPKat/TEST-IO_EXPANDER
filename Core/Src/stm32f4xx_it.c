@@ -225,7 +225,11 @@ void CAN1_TX_IRQHandler(void)
 void CAN1_RX0_IRQHandler(void)
 {
   /* USER CODE BEGIN CAN1_RX0_IRQn 0 */
-
+	  HAL_CAN_IRQHandler(&hcan1);
+	  HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &CAN_circ_buf[CAN_buf_WR].CAN_message, CAN_circ_buf[CAN_buf_WR].rbuffer_data);
+	  CAN_buf_WR ++;
+	  val_can++;
+	  if (CAN_buf_WR == BUF_CIRC_SIZE) CAN_buf_WR=0;
   /* USER CODE END CAN1_RX0_IRQn 0 */
   HAL_CAN_IRQHandler(&hcan1);
   /* USER CODE BEGIN CAN1_RX0_IRQn 1 */
