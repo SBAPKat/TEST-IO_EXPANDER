@@ -36,7 +36,7 @@
 
 #define OVERCURRENT_THRESHOLD 7.0 //in AMPS
 #define SHUNT_R 0.010 // Ohms
-#define OVERCURRENT_THRESHOLD_V OVERCURRENT_THRESHOLD/SHUNT_R
+#define OVERCURRENT_THRESHOLD_V 3.0//OVERCURRENT_THRESHOLD*SHUNT_R
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -157,7 +157,7 @@ int main(void)
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	MCP23008_WritePin(&GPIO_2, 0,1, 100);
-	ADC_2.update_request ^= ADC2_FARG_VEILLE;
+	ADC_2.update_request ^= (1<<ADC2_FARG_VEILLE);
 	while (1)
 	{
 		if(INT_FLAG != 0){
@@ -376,19 +376,19 @@ static void MX_SPI3_Init(void)
 	ADC_1.pgpio_cs = SPI_ADC1_CS_GPIO_Port;
 	ADC_1.pin_nbr = SPI_ADC1_CS_Pin;
 	ADC_1.vref = 5.305;
-	ADC_1.ID = 0;
+	ADC_1.ID = 1;
 
 	ADC_2.phspi = &hspi3;
 	ADC_2.pgpio_cs = SPI_ADC2_CS_GPIO_Port;
 	ADC_2.pin_nbr = SPI_ADC2_CS_Pin;
 	ADC_2.vref = 5.305;
-	ADC_2.ID = 1;
+	ADC_2.ID = 2;
 
 	ADC_3.phspi = &hspi3;
 	ADC_3.pgpio_cs = SPI_ADC3_CS_GPIO_Port;
 	ADC_3.pin_nbr = SPI_ADC3_CS_Pin;
 	ADC_3.vref = 5.305;
-	ADC_3.ID = 2;
+	ADC_3.ID = 3;
 	/* USER CODE END SPI3_Init 2 */
 
 }
@@ -673,7 +673,11 @@ void TO54_CHECK_OVERCURRENT(){
 
 		/* and each input */
 		for(uint8_t i=0;i<8;i++){
-			if(adc->result[i] > OVERCURRENT_THRESHOLD_V) TO54_OVERCURRENT_ACTION(adc, i);
+			if(adc->result[i] > OVERCURRENT_THRESHOLD_V){
+				MCP3008_ReadChannel(adc, i, 10); //2 e vérif, pour essayer de filtrer le bruit
+				if(adc->result[i] > OVERCURRENT_THRESHOLD_V) TO54_OVERCURRENT_ACTION(adc, i);
+
+			}
 		}
 	}
 
