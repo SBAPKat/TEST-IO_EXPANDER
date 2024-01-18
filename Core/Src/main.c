@@ -152,6 +152,7 @@ int main(void)
 	HAL_TIM_Base_Start(&htim6);
 	float result[8] = {0};
 	init_circular_buffer();
+
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -167,7 +168,9 @@ int main(void)
 			TO54_CHECK_OVERCURRENT();
 			INT_FLAG = 0;
 		}
-	if (val_can>0) Receive_frame();
+		if (val_can>0){
+			Receive_frame();
+		}
 
 		/* USER CODE END WHILE */
 
@@ -238,11 +241,11 @@ static void MX_CAN1_Init(void)
 
 	/* USER CODE END CAN1_Init 1 */
 	hcan1.Instance = CAN1;
-	hcan1.Init.Prescaler = 16;
+	hcan1.Init.Prescaler = 3;
 	hcan1.Init.Mode = CAN_MODE_NORMAL;
 	hcan1.Init.SyncJumpWidth = CAN_SJW_1TQ;
-	hcan1.Init.TimeSeg1 = CAN_BS1_1TQ;
-	hcan1.Init.TimeSeg2 = CAN_BS2_1TQ;
+	hcan1.Init.TimeSeg1 = CAN_BS1_11TQ;
+	hcan1.Init.TimeSeg2 = CAN_BS2_2TQ;
 	hcan1.Init.TimeTriggeredMode = DISABLE;
 	hcan1.Init.AutoBusOff = DISABLE;
 	hcan1.Init.AutoWakeUp = DISABLE;
@@ -255,6 +258,19 @@ static void MX_CAN1_Init(void)
 	}
 	/* USER CODE BEGIN CAN1_Init 2 */
 
+	CAN_FilterTypeDef Myfilter = {0};
+	  Myfilter.FilterFIFOAssignment=CAN_FILTER_FIFO0;
+	  Myfilter.FilterIdHigh=0x0;
+	  Myfilter.FilterIdLow=0x0;
+	  Myfilter.FilterMaskIdHigh=0;//0x1050;
+	  Myfilter.FilterMaskIdLow=0;//0x1<<2;
+	  Myfilter.FilterScale=CAN_FILTERSCALE_16BIT;
+	  Myfilter.FilterMode=CAN_FILTERMODE_IDMASK;
+	  Myfilter.FilterActivation=ENABLE;
+	  Myfilter.FilterBank=0;
+	HAL_CAN_ConfigFilter(&hcan1, &Myfilter);
+	HAL_CAN_Start(&hcan1);
+	HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
 	/* USER CODE END CAN1_Init 2 */
 
 }
@@ -572,28 +588,28 @@ void TO54_ADC1_OVERCURRENT_ACTION(uint8_t pin_nbr){
 	switch(pin_nbr){
 	//we need to deactivate the corresponding output to avoid damage
 	case(ADC1_FAVG_ROUTE):
-											MCP23008_WritePin(&GPIO_3, 0,0, 100);
+		MCP23008_WritePin(&GPIO_3, 0,0, 100);
 	break;
 	case(ADC1_FAVG_CROISEMENT):
-											MCP23008_WritePin(&GPIO_3, 1,0, 100);
+		MCP23008_WritePin(&GPIO_3, 1,0, 100);
 	break;
 	case(ADC1_FAVG_CLIGNO):
-											MCP23008_WritePin(&GPIO_3, 2,0, 100);
+		MCP23008_WritePin(&GPIO_3, 2,0, 100);
 	break;
 	case(ADC1_FAVG_VEILLE):
-											MCP23008_WritePin(&GPIO_3, 3,0, 100);
+		MCP23008_WritePin(&GPIO_3, 3,0, 100);
 	break;
 	case(ADC1_FAVD_ROUTE):
-											MCP23008_WritePin(&GPIO_3, 4,0, 100);
+		MCP23008_WritePin(&GPIO_3, 4,0, 100);
 	break;
 	case(ADC1_FAVD_CROISEMENT):
-											MCP23008_WritePin(&GPIO_3, 5,0, 100);
+		MCP23008_WritePin(&GPIO_3, 5,0, 100);
 	break;
 	case(ADC1_FAVD_CLIGNO):
-											MCP23008_WritePin(&GPIO_3, 6,0, 100);
+		MCP23008_WritePin(&GPIO_3, 6,0, 100);
 	break;
 	case(ADC1_FAVD_VEILLE):
-											MCP23008_WritePin(&GPIO_3, 7,0, 100);
+		MCP23008_WritePin(&GPIO_3, 7,0, 100);
 	break;
 
 	}
@@ -603,29 +619,29 @@ void TO54_ADC1_OVERCURRENT_ACTION(uint8_t pin_nbr){
 void TO54_ADC2_OVERCURRENT_ACTION(uint8_t pin_nbr){
 	switch(pin_nbr){
 	case(ADC2_FARG_VEILLE):
-											MCP23008_WritePin(&GPIO_2, 0,0, 100);
+		MCP23008_WritePin(&GPIO_2, 0,0, 100);
 
 	break;
 	case(ADC2_FARG_STOP):
-											MCP23008_WritePin(&GPIO_2, 1,0, 100);
+		MCP23008_WritePin(&GPIO_2, 1,0, 100);
 	break;
 	case(ADC2_FARG_CLIGNO):
-											MCP23008_WritePin(&GPIO_2, 2,0, 100);
+		MCP23008_WritePin(&GPIO_2, 2,0, 100);
 	break;
 	case(ADC2_FARG_RECUL):
-											MCP23008_WritePin(&GPIO_2, 3,0, 100);
+		MCP23008_WritePin(&GPIO_2, 3,0, 100);
 	break;
 	case(ADC2_FARD_VEILLE):
-											MCP23008_WritePin(&GPIO_2, 4,0, 100);
+		MCP23008_WritePin(&GPIO_2, 4,0, 100);
 	break;
 	case(ADC2_FARD_STOP):
-											MCP23008_WritePin(&GPIO_2, 5,0, 100);
+		MCP23008_WritePin(&GPIO_2, 5,0, 100);
 	break;
 	case(ADC2_FARD_CLIGNO):
-											MCP23008_WritePin(&GPIO_2, 6,0, 100);
+		MCP23008_WritePin(&GPIO_2, 6,0, 100);
 	break;
 	case(ADC2_FARD_RECUL):
-											MCP23008_WritePin(&GPIO_2, 7,0, 100);
+		MCP23008_WritePin(&GPIO_2, 7,0, 100);
 	break;
 	}
 	ADC_2.update_request ^= 1 << pin_nbr;
@@ -636,30 +652,30 @@ void TO54_ADC2_OVERCURRENT_ACTION(uint8_t pin_nbr){
 void TO54_ADC3_OVERCURRENT_ACTION(uint8_t pin_nbr){
 	switch(pin_nbr){
 	case(ADC3_R_M1):
-											MCP23008_WritePin(&GPIO_1, 0, 0, 100);
-	MCP23008_WritePin(&GPIO_1, 1, 0, 100);
+		MCP23008_WritePin(&GPIO_1, 0, 0, 100);
+		MCP23008_WritePin(&GPIO_1, 1, 0, 100);
 	break;
 	case(ADC3_R_M2):
-											MCP23008_WritePin(&GPIO_1, 4, 0, 100);
-	MCP23008_WritePin(&GPIO_1, 5, 0, 100);
+		MCP23008_WritePin(&GPIO_1, 4, 0, 100);
+		MCP23008_WritePin(&GPIO_1, 5, 0, 100);
 	break;
 	case(ADC3_S_M1):
-											MCP23008_WritePin(&GPIO_0, 0, 0, 100);
-	MCP23008_WritePin(&GPIO_0, 1, 0, 100);
+		MCP23008_WritePin(&GPIO_0, 0, 0, 100);
+		MCP23008_WritePin(&GPIO_0, 1, 0, 100);
 	break;
 	case(ADC3_S_M2):
-											MCP23008_WritePin(&GPIO_0, 4, 0, 100);
-	MCP23008_WritePin(&GPIO_0, 5, 0, 100);
+		MCP23008_WritePin(&GPIO_0, 4, 0, 100);
+		MCP23008_WritePin(&GPIO_0, 5, 0, 100);
 	break;
 	case(ADC3_L_M1):
-											MCP23008_WritePin(&GPIO_4, 0, 0, 100);
-	MCP23008_WritePin(&GPIO_4, 1, 0, 100);
+		MCP23008_WritePin(&GPIO_4, 0, 0, 100);
+		MCP23008_WritePin(&GPIO_4, 1, 0, 100);
 	break;
 	case(ADC3_FARG_BROUILL):
-											MCP23008_WritePin(&GPIO_4, 4, 0, 100);
+		MCP23008_WritePin(&GPIO_4, 4, 0, 100);
 	break;
 	case(ADC3_FARD_BROUILL):
-											MCP23008_WritePin(&GPIO_4, 5, 0, 100);
+		MCP23008_WritePin(&GPIO_4, 5, 0, 100);
 	break;
 	}
 	ADC_3.update_request ^= 1 << pin_nbr;

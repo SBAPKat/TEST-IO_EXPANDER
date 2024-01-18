@@ -134,5 +134,6 @@ void Receive_frame_for_U8(void);
 void Receive_frame_for_U11(void);
 void Receive_frame_for_U6(void);
 void Receive_frame_for_U10(void);
+void Receive_frame(void);
 
 #endif /* MAQUETTE_CAN_H_ */

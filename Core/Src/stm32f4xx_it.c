@@ -20,9 +20,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_it.h"
-#include "maquette_can.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "maquette_can.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
