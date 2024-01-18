@@ -159,6 +159,18 @@ int main(void)
 	/* USER CODE BEGIN WHILE */
 	MCP23008_WritePin(&GPIO_2, 0,1, 100);
 	ADC_2.update_request ^= (1<<ADC2_FARG_VEILLE);
+
+	CAN_frame_Tx Frame_To_Send;
+	Frame_To_Send.CAN_message.StdId = 0x050;
+	Frame_To_Send.CAN_message.RTR = CAN_RTR_DATA;
+	Frame_To_Send.CAN_message.IDE = CAN_ID_STD;
+	Frame_To_Send.CAN_message.DLC = 1;
+	Frame_To_Send.rbuffer_data[0] = 0xF4;
+
+	HAL_CAN_AddTxMessage(&hcan1, &Frame_To_Send.CAN_message, Frame_To_Send.rbuffer_data,&pTxMailbox);
+	HAL_Delay(1);
+
+
 	while (1)
 	{
 		if(INT_FLAG != 0){
@@ -241,11 +253,11 @@ static void MX_CAN1_Init(void)
 
 	/* USER CODE END CAN1_Init 1 */
 	hcan1.Instance = CAN1;
-	hcan1.Init.Prescaler = 3;
+	hcan1.Init.Prescaler = 17;
 	hcan1.Init.Mode = CAN_MODE_NORMAL;
 	hcan1.Init.SyncJumpWidth = CAN_SJW_1TQ;
-	hcan1.Init.TimeSeg1 = CAN_BS1_11TQ;
-	hcan1.Init.TimeSeg2 = CAN_BS2_2TQ;
+	hcan1.Init.TimeSeg1 = CAN_BS1_6TQ;
+	hcan1.Init.TimeSeg2 = CAN_BS2_3TQ;
 	hcan1.Init.TimeTriggeredMode = DISABLE;
 	hcan1.Init.AutoBusOff = DISABLE;
 	hcan1.Init.AutoWakeUp = DISABLE;
@@ -260,7 +272,7 @@ static void MX_CAN1_Init(void)
 
 	CAN_FilterTypeDef Myfilter = {0};
 	  Myfilter.FilterFIFOAssignment=CAN_FILTER_FIFO0;
-	  Myfilter.FilterIdHigh=0x0;
+	  Myfilter.FilterIdHigh=0x0001;
 	  Myfilter.FilterIdLow=0x0;
 	  Myfilter.FilterMaskIdHigh=0;//0x1050;
 	  Myfilter.FilterMaskIdLow=0;//0x1<<2;
@@ -269,8 +281,8 @@ static void MX_CAN1_Init(void)
 	  Myfilter.FilterActivation=ENABLE;
 	  Myfilter.FilterBank=0;
 	HAL_CAN_ConfigFilter(&hcan1, &Myfilter);
-	HAL_CAN_Start(&hcan1);
 	HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
+	HAL_CAN_Start(&hcan1);
 	/* USER CODE END CAN1_Init 2 */
 
 }
@@ -537,7 +549,7 @@ void TO54_IOEXPANDERS_Init(){
 	if(MCP23008_Setup(&GPIO_4, 0x00, 100) != HAL_OK) Error_Handler(); //Sorties
 	if(MCP23008_Setup(&GPIO_5, 0x00, 100) != HAL_OK) Error_Handler(); //Sorties
 	if(MCP23008_Setup(&GPIO_6, 0x00, 100) != HAL_OK) Error_Handler(); //Sorties
-	if(MCP23008_Setup(&GPIO_7, 0xFF, 100) != HAL_OK) Error_Handler(); //Entrées
+	//if(MCP23008_Setup(&GPIO_7, 0xFF, 100) != HAL_OK) Error_Handler(); //Entrées
 
 }
 
