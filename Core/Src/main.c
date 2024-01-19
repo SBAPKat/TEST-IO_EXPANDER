@@ -157,8 +157,6 @@ int main(void)
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
-	MCP23008_WritePin(&GPIO_2, 0,1, 100);
-	ADC_2.update_request ^= (1<<ADC2_FARG_VEILLE);
 
 	CAN_frame_Tx Frame_To_Send;
 	Frame_To_Send.CAN_message.StdId = 0x050;
@@ -174,7 +172,7 @@ int main(void)
 	while (1)
 	{
 		if(INT_FLAG != 0){
-			if(MCP23008_WritePort(&GPIO_1, TimerTestData, 100)!= HAL_OK) Error_Handler();
+			if(MCP23008_WritePort(&GPIO_6, TimerTestData, 100)!= HAL_OK) Error_Handler();
 			TimerTestData = ~TimerTestData;
 			TO54_UPDATE_ANALOG();
 			TO54_CHECK_OVERCURRENT();

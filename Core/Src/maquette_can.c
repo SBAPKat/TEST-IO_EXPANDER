@@ -50,7 +50,7 @@ void Receive_frame_for_U5(void)
 
 	switch(CAN_circ_buf[CAN_buf_RD].CAN_message.StdId & 0x0F3)
 	{
-		case (IO_EXPANDERS_U5):
+		case (IO_EXPANDERS_U5): // SIEGE
 		// Check to know if it's a data or a remote frame
 				if(CAN_circ_buf[CAN_buf_RD].CAN_message.RTR > 0) //Remote frame RTR=1
 				{
@@ -74,26 +74,26 @@ void Receive_frame_for_U5(void)
 						{
 							if((traitement&0x30) == 0x10 || (traitement&0x30) == 0x20)//Regarde si le moteur va être mis en marche
 							{
-								ADC_3.update_request |= 0b00000010;//Mise en marche de la surveillance
+								ADC_3.update_request |= 0b00001000;//Mise en marche de la surveillance
 							}
 							else //Sinon le moteur va s'éteindre
 							{
-								ADC_3.update_request &= 0b11111101;//Arrêt de la surveillance
+								ADC_3.update_request &= 0b11110111;//Arrêt de la surveillance
 							}
 							donnees = GPIO_0.currentStatus;//Va chercher l'état du GPIO0
 							donnees &= 0xCF; // Met à 0 les bits 4 et 5
 							donnees |= (traitement & 0xF0); // Isole les bits 4, 5, 6 et 7 de la donnée reçue et les met dans la variable qui modifie les IO Expanders
 							MCP23008_WritePort(&GPIO_0, donnees, 100);
 						}
-						if (traitement&0x03 != 0x03)//Regarde si les bits 0 et 1 sont différents de 11 (moteur 1)
+						if ((traitement&0x03) != 0x03)//Regarde si les bits 0 et 1 sont différents de 11 (moteur 1)
 						{
-							if(traitement&0x03 == 0x01 || traitement&0x03 == 0x02)//Regarde si le moteur va être mis en marche
+							if((traitement&0x03) == 0x01 || (traitement&0x03) == 0x02)//Regarde si le moteur va être mis en marche
 							{
-								ADC_3.update_request |= 0b00000001;//Mise en marche de la surveillance
+								ADC_3.update_request |= 0b00000100;//Mise en marche de la surveillance
 							}
 							else //Sinon le moteur va s'éteindre
 							{
-								ADC_3.update_request &= 0b11111110;//Arrêt de la surveillance
+								ADC_3.update_request &= 0b11111011;//Arrêt de la surveillance
 							}
 							donnees = GPIO_0.currentStatus;//Va chercher l'état du GPIO0
 							donnees &= 0xFC; // Met à 0 les bits 0 et 1
@@ -170,7 +170,7 @@ void Receive_frame_for_U8(void)
 	extern MCP23008_InitTypeDef GPIO_1;
 	switch(CAN_circ_buf[CAN_buf_RD].CAN_message.StdId & 0x0F3)
 	{
-		case (IO_EXPANDERS_U8):
+		case (IO_EXPANDERS_U8): //RETRO
 				// Check to know if it's a data or a remote frame
 				if(CAN_circ_buf[CAN_buf_RD].CAN_message.RTR > 0) //Remote frame RTR=1
 				{
@@ -190,30 +190,30 @@ void Receive_frame_for_U8(void)
 					if(CAN_circ_buf[CAN_buf_RD].CAN_message.DLC == 1)
 					{
 						traitement = CAN_circ_buf[CAN_buf_RD].rbuffer_data[0] | 0xCC; //Filtre la donnée reçue pour laisser les bits 7, 6, 3 et 2 à 1 au cas où l'étudiant les auraient mis à 0
-						if(traitement&0x30 != 0x30)//Regarde si les bits 4 et 5 sont différents de 11 (moteur 2)
+						if((traitement&0x30) != 0x30)//Regarde si les bits 4 et 5 sont différents de 11 (moteur 2)
 						{
-							if(traitement&0x30 == 0x10 ||traitement&0x30 == 0x20)//Regarde si le moteur va être mis en marche
+							if((traitement&0x30) == 0x10 || (traitement&0x30) == 0x20)//Regarde si le moteur va être mis en marche
 								{
-									ADC_3.update_request |= 0b00001000;//Mise en marche de la surveillance
+									ADC_3.update_request |= 0b00000010;//Mise en marche de la surveillance
 								}
 								else //Sinon le moteur va s'éteindre
 								{
-									ADC_3.update_request &= 0b11110111;//Arrêt de la surveillance
+									ADC_3.update_request &= 0b11111101;//Arrêt de la surveillance
 								}
 							donnees = GPIO_1.currentStatus;
 							donnees &= 0xCF; // Met à 0 les bits 4 et 5
 							donnees |= (traitement & 0xF0); // Isole les bits 4, 5, 6 et 7 de la donnée reçue et les met dans la variable qui modifie les IO Expanders
 							MCP23008_WritePort(&GPIO_1, donnees, 100);
 						}
-						if(traitement&0x03 != 0x03)//Regarde si les bits 0 et 1 sont différents de 11 (moteur 1)
+						if((traitement&0x03) != 0x03)//Regarde si les bits 0 et 1 sont différents de 11 (moteur 1)
 						{
-							if(traitement&0x03 == 0x01 || traitement&0x03 == 0x02)//Regarde si le moteur va être mis en marche
+							if((traitement&0x03) == 0x01 || (traitement&0x03) == 0x02)//Regarde si le moteur va être mis en marche
 							{
-								ADC_3.update_request |= 0b00000100;//Mise en marche de la surveillance
+								ADC_3.update_request |= 0b00000001;//Mise en marche de la surveillance
 							}
 							else //Sinon le moteur va s'éteindre
 							{
-								ADC_3.update_request &= 0b11111011;//Arrêt de la surveillance
+								ADC_3.update_request &= 0b11111110;//Arrêt de la surveillance
 							}
 							donnees = GPIO_1.currentStatus;
 							donnees &= 0xFC; // Met à 0 les bits 0 et 1
@@ -287,7 +287,7 @@ void Receive_frame_for_U11(void)
 	CAN_frame_Tx Frame_To_Send;
 	uint8_t traitement;
 	uint8_t donnees;
-	extern MCP23008_InitTypeDef GPIO_2;
+	extern MCP23008_InitTypeDef GPIO_4;
 	switch(CAN_circ_buf[CAN_buf_RD].CAN_message.StdId & 0x0F3)
 	{
 		case (IO_EXPANDERS_U11):
@@ -299,7 +299,7 @@ void Receive_frame_for_U11(void)
 					Frame_To_Send.CAN_message.RTR = CAN_RTR_DATA;
 					Frame_To_Send.CAN_message.IDE = CAN_ID_STD;
 					Frame_To_Send.CAN_message.DLC = 1;
-					Frame_To_Send.rbuffer_data[0] = GPIO_2.currentStatus;
+					Frame_To_Send.rbuffer_data[0] = GPIO_4.currentStatus;
 
 					HAL_CAN_AddTxMessage(&hcan1, &Frame_To_Send.CAN_message, Frame_To_Send.rbuffer_data,&pTxMailbox);
 					HAL_Delay(1);
@@ -310,10 +310,10 @@ void Receive_frame_for_U11(void)
 					if(CAN_circ_buf[CAN_buf_RD].CAN_message.DLC == 1)
 					{
 						traitement = CAN_circ_buf[CAN_buf_RD].rbuffer_data[0] | 0x0C; //Filtre la donnée reçue pour laisser les bits 3 et 2 à 1 au cas où l'étudiant les auraient mis à 0
-						if (traitement&0x03 != 0x03)//Regarde si les bits 0 et 1 sont différents de 11 (moteur 1)
+						if ((traitement&0x03) != 0x03)//Regarde si les bits 0 et 1 sont différents de 11 (moteur 1)
 						{
 							//Moteur
-							if(traitement&0x03 == 0x01 || traitement&0x03 == 0x02)//Regarde si le moteur va être mis en marche
+							if((traitement&0x03) == 0x01 || (traitement&0x03) == 0x02)//Regarde si le moteur va être mis en marche
 							{
 								ADC_3.update_request |= 0b00010000;//Mise en marche de la surveillance
 							}
@@ -321,19 +321,20 @@ void Receive_frame_for_U11(void)
 							{
 								ADC_3.update_request &= 0b11101111;//Arrêt de la surveillance
 							}
-							donnees = GPIO_2.currentStatus;
+							donnees = GPIO_4.currentStatus;
 							donnees &= 0xFC; // Met à 0 les bits 0 et 1
 							donnees |= (traitement & 0x0F); // Isole les bits 0, 1, 2 et 3 de la donnée reçue et les met dans la variable qui modifie les IO Expanders
 							//Feux
-							ADC_3.update_request ^= (traitement & 0x30);//Vérifie le courant des IO mis en marche
+							ADC_3.update_request ^= (traitement & 0x30)<<1;//Vérifie le courant des IO mis en marche
 							donnees ^= (traitement & 0x30); // Isole les bits 4 et 5 de la donnée reçue et change l'état de ceux de la donnée récupérée à l'IO Expander
-							MCP23008_WritePort(&GPIO_2, donnees, 100);
+							MCP23008_WritePort(&GPIO_4, donnees, 100);
 						}
 						else
 						{	//Feux
+							donnees = GPIO_4.currentStatus;
 							donnees ^= (traitement & 0x30); // Isole les bits 4 et 5 de la donnée reçue et change l'état de ceux de la donnée récupérée à l'IO Expander
-							ADC_3.update_request ^= (traitement & 0x30);//Vérifie le courant des IO mis en marche
-							MCP23008_WritePort(&GPIO_2, donnees, 100);
+							ADC_3.update_request ^= (traitement & 0x30)<<1;//Vérifie le courant des IO mis en marche
+							MCP23008_WritePort(&GPIO_4, donnees, 100);
 						}
 					}
 					else
@@ -484,7 +485,7 @@ void Receive_frame_for_U10(void)
 	CAN_frame_Tx Frame_To_Send;
 	uint8_t traitement;
 	uint8_t donnees;
-	extern MCP23008_InitTypeDef GPIO_4;
+	extern MCP23008_InitTypeDef GPIO_2;
 	switch(CAN_circ_buf[CAN_buf_RD].CAN_message.StdId & 0x0F3)
 	{
 		case (IO_EXPANDERS_U10):
@@ -496,7 +497,7 @@ void Receive_frame_for_U10(void)
 					Frame_To_Send.CAN_message.RTR = CAN_RTR_DATA;
 					Frame_To_Send.CAN_message.IDE = CAN_ID_STD;
 					Frame_To_Send.CAN_message.DLC = 1;
-					Frame_To_Send.rbuffer_data[0] = GPIO_4.currentStatus;
+					Frame_To_Send.rbuffer_data[0] = GPIO_2.currentStatus;
 
 					HAL_CAN_AddTxMessage(&hcan1, &Frame_To_Send.CAN_message, Frame_To_Send.rbuffer_data,&pTxMailbox);
 					HAL_Delay(1);
@@ -507,10 +508,10 @@ void Receive_frame_for_U10(void)
 					if(CAN_circ_buf[CAN_buf_RD].CAN_message.DLC == 1)
 					{
 						traitement = CAN_circ_buf[CAN_buf_RD].rbuffer_data[0];//Stockage de la data
-						donnees = GPIO_4.currentStatus;//Stockage de l'état des IO
+						donnees = GPIO_2.currentStatus;//Stockage de l'état des IO
 						donnees ^= traitement;//Inversion de l'état
-						ADC_1.update_request ^= traitement;//Vérifie le courant des IO mis en marche
-						MCP23008_WritePort(&GPIO_4, donnees, 100);
+						ADC_2.update_request ^= traitement;//Vérifie le courant des IO mis en marche
+						MCP23008_WritePort(&GPIO_2, donnees, 100);
 					}
 					else
 					{
