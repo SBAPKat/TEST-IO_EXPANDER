@@ -105,6 +105,7 @@ void TO54_ADC2_OVERCURRENT_ACTION(uint8_t pin_nbr);
 void TO54_ADC3_OVERCURRENT_ACTION(uint8_t pin_nbr);
 void TO54_CHECK_OVERCURRENT();
 
+void test_procedure();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -157,15 +158,15 @@ int main(void)
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
-
 	CAN_frame_Tx Frame_To_Send;
+
 	Frame_To_Send.CAN_message.StdId = 0x050;
 	Frame_To_Send.CAN_message.RTR = CAN_RTR_DATA;
 	Frame_To_Send.CAN_message.IDE = CAN_ID_STD;
 	Frame_To_Send.CAN_message.DLC = 1;
 	Frame_To_Send.rbuffer_data[0] = 0xF4;
 
-	HAL_CAN_AddTxMessage(&hcan1, &Frame_To_Send.CAN_message, Frame_To_Send.rbuffer_data,&pTxMailbox);
+//	HAL_CAN_AddTxMessage(&hcan1, &Frame_To_Send.CAN_message, Frame_To_Send.rbuffer_data,&pTxMailbox);
 	HAL_Delay(1);
 
 
@@ -176,11 +177,13 @@ int main(void)
 			TimerTestData = ~TimerTestData;
 			TO54_UPDATE_ANALOG();
 			TO54_CHECK_OVERCURRENT();
+			test_procedure();
 			INT_FLAG = 0;
 		}
 		if (val_can>0){
 			Receive_frame();
 		}
+
 
 		/* USER CODE END WHILE */
 
@@ -252,7 +255,7 @@ static void MX_CAN1_Init(void)
 	/* USER CODE END CAN1_Init 1 */
 	hcan1.Instance = CAN1;
 	hcan1.Init.Prescaler = 17;
-	hcan1.Init.Mode = CAN_MODE_NORMAL;
+	hcan1.Init.Mode = CAN_MODE_LOOPBACK;
 	hcan1.Init.SyncJumpWidth = CAN_SJW_1TQ;
 	hcan1.Init.TimeSeg1 = CAN_BS1_6TQ;
 	hcan1.Init.TimeSeg2 = CAN_BS2_3TQ;
@@ -707,6 +710,23 @@ void TO54_CHECK_OVERCURRENT(){
 		}
 	}
 
+}
+
+
+uint32_t last_send_tick1 = 0;
+void test_procedure(){
+	if(last_send_tick1 > 10000)
+	{
+		CAN_frame_Tx Frame_To_Send;
+		Frame_To_Send.CAN_message.StdId = 0x050;
+		Frame_To_Send.CAN_message.RTR = CAN_RTR_DATA;
+		Frame_To_Send.CAN_message.IDE = CAN_ID_STD;
+		Frame_To_Send.CAN_message.DLC = 1;
+		Frame_To_Send.rbuffer_data[0] = 0x01;
+		HAL_CAN_AddTxMessage(&hcan1, &Frame_To_Send.CAN_message, Frame_To_Send.rbuffer_data,&pTxMailbox);
+		last_send_tick1 = 0;
+	}
+	last_send_tick1 ++;
 }
 /* USER CODE END 4 */
 
